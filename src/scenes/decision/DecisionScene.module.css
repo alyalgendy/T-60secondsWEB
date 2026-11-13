@@ -78,7 +78,7 @@
 
 /* ---------------- Left: crew & turn ---------------- */
 
-.progressBlock {
+.timelineBlock {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -87,7 +87,7 @@
   background: rgba(4, 9, 20, 0.35);
 }
 
-.progressHead {
+.timelineHead {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -100,38 +100,173 @@
   color: var(--accent);
 }
 
-.progressList {
+.clockRow {
   display: flex;
-  align-items: center;
-  gap: 5px;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.clockValue {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  line-height: 1;
+  color: var(--accent);
+  text-shadow: var(--glow);
+  white-space: nowrap;
+}
+
+.clockPhase {
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  line-height: 1.2;
+  color: var(--text-dim);
+}
+
+.timelineList {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.progressStep {
-  flex: 1 1 0;
+.timelineItem {
   display: grid;
-  place-items: center;
-  height: 20px;
+  grid-template-columns: 7px 50px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 2px 5px;
+  border: 1px solid transparent;
+  border-left: 2px solid rgba(138, 160, 192, 0.2);
+  background: rgba(4, 8, 18, 0.28);
+}
+
+.timelineDone {
+  opacity: 0.62;
+}
+
+.timelineCurrent {
+  border-color: rgba(79, 209, 255, 0.28);
+  border-left-color: var(--accent);
+  background: rgba(79, 209, 255, 0.08);
+}
+
+.timelineDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 7px currentColor;
+}
+
+.timelineMet {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 8.5px;
+  line-height: 1.1;
   color: var(--text-dim);
-  border: 1px solid rgba(138, 160, 192, 0.28);
-  background: rgba(4, 8, 18, 0.45);
+  overflow-wrap: break-word;
 }
 
-.progressDone {
-  color: var(--ok);
-  border-color: rgba(61, 220, 151, 0.45);
-  background: rgba(61, 220, 151, 0.1);
+.timelineTitle {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  color: var(--text);
 }
 
-.progressCurrent {
-  color: #031018;
-  border-color: #a8ecff;
-  background: linear-gradient(180deg, #66dbff, #2ba8db);
-  box-shadow: 0 0 10px rgba(79, 209, 255, 0.4);
+.timelineState {
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.06em;
+  text-align: right;
+  color: var(--text-dim);
+}
+
+.timelineCurrent .timelineState {
+  color: var(--accent);
+}
+
+.timelineEnds {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.riskBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px 9px;
+  border: 1px dashed rgba(138, 160, 192, 0.24);
+}
+
+.riskHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.riskMeter {
+  display: flex;
+  gap: 3px;
+}
+
+.riskTick {
+  flex: 1 1 0;
+  height: 4px;
+  background: rgba(138, 160, 192, 0.18);
+}
+
+.riskTickOn {
+  background: linear-gradient(90deg, var(--accent-2), var(--danger));
+  box-shadow: 0 0 6px rgba(255, 93, 108, 0.28);
+}
+
+.riskText {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 1.3;
+  color: var(--text-dim);
+}
+
+.severityChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.severityCaution {
+  color: var(--warn);
+}
+
+.severityWarning {
+  color: #ffd27a;
+}
+
+.severityCritical {
+  color: var(--danger);
 }
 
 .turnList {
@@ -233,6 +368,34 @@
 
 /* ---------------- Center: choosing ---------------- */
 
+.eventView {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.eventAlert {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-family: var(--font-display);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--danger);
+}
+
+.eventAlertDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--danger);
+  box-shadow: 0 0 8px rgba(255, 93, 108, 0.7);
+  animation: eventPulse 1.2s ease-in-out infinite;
+}
+
 .problemCard {
   display: flex;
   flex-direction: column;
@@ -248,6 +411,141 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.problemMetaRight {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.eventPhase {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+}
+
+/* ---------------- Center: time jump ---------------- */
+
+.timeJump {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: 100%;
+  padding: 20px 22px;
+  border: 1px solid rgba(79, 209, 255, 0.14);
+  background:
+    radial-gradient(circle at 18% 12%, rgba(79, 209, 255, 0.09), transparent 58%),
+    rgba(4, 8, 18, 0.35);
+}
+
+.jumpClockRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.jumpFrom {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  line-height: 1;
+  color: var(--text-dim);
+}
+
+.jumpArrow {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--accent-2);
+}
+
+.jumpNow {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+  text-shadow: var(--glow);
+  animation: clockPop 900ms ease-out;
+}
+
+.jumpTrack {
+  position: relative;
+  height: 4px;
+  overflow: hidden;
+  background: rgba(138, 160, 192, 0.16);
+}
+
+.jumpSweep {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  animation: timeSweep 1.1s linear forwards;
+}
+
+.jumpText {
+  margin: 0;
+  max-width: 54ch;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.45;
+  color: rgba(230, 241, 255, 0.9);
+}
+
+.jumpAlert {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid rgba(255, 93, 108, 0.45);
+  background: rgba(255, 93, 108, 0.08);
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ffc9ce;
+  animation: alertIn 400ms 600ms both;
+}
+
+.jumpPulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+  box-shadow: 0 0 10px rgba(255, 93, 108, 0.8);
+  animation: eventPulse 700ms ease-in-out infinite;
+}
+
+.jumpAlertText {
+  color: #ffc9ce;
+}
+
+@keyframes timeSweep {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes clockPop {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes alertIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes eventPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
 }
 
 .problemIndex {
@@ -255,6 +553,7 @@
   font-size: 10px;
   letter-spacing: 0.12em;
   color: var(--text-dim);
+  white-space: nowrap;
 }
 
 .problemTitle {
@@ -530,6 +829,15 @@
   color: var(--accent);
 }
 
+.nextNote {
+  margin: 0;
+  padding: 7px 9px;
+  border: 1px dashed rgba(138, 160, 192, 0.28);
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
 .revealFooter {
   display: flex;
   justify-content: flex-end;
@@ -566,6 +874,14 @@
 .debriefTitle:focus-visible {
   outline: 2px solid var(--accent-2);
   outline-offset: 3px;
+}
+
+.debriefMeta {
+  margin: -4px 0 0;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
 }
 
 .debriefScoreRow {
@@ -663,6 +979,13 @@
   color: var(--text-dim);
 }
 
+.tableMet {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
 .debriefFooter {
   display: flex;
   justify-content: flex-end;
@@ -692,6 +1015,20 @@
   display: flex;
   align-items: baseline;
   gap: 6px;
+}
+
+.scoreHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.scoreMet {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  white-space: nowrap;
 }
 
 .scoreBig {
@@ -807,6 +1144,18 @@
     gap: var(--space-2);
   }
 
+  .timelineItem {
+    grid-template-columns: 7px 46px minmax(0, 1fr) 22px;
+  }
+
+  .clockValue {
+    font-size: 16px;
+  }
+
+  .jumpNow {
+    font-size: 30px;
+  }
+
   .problemTitle {
     font-size: 19px;
   }
@@ -828,6 +1177,27 @@
 @media (max-width: 1024px) {
   .grid {
     grid-template-columns: 214px minmax(0, 1fr) 246px;
+  }
+
+  .timelineItem {
+    grid-template-columns: 7px 48px minmax(0, 1fr) 20px;
+    gap: 4px;
+  }
+
+  .timelineTitle {
+    font-size: 10px;
+  }
+
+  .timeJump {
+    padding: 16px;
+  }
+
+  .jumpNow {
+    font-size: 26px;
+  }
+
+  .jumpFrom {
+    font-size: 18px;
   }
 
   .option {
@@ -860,6 +1230,14 @@
 @media (prefers-reduced-motion: reduce) {
   .scoreBig,
   .debriefScoreValue {
+    animation: none;
+  }
+
+  .jumpNow,
+  .jumpSweep,
+  .jumpAlert,
+  .jumpPulse,
+  .eventAlertDot {
     animation: none;
   }
 

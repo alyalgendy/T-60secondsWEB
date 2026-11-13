@@ -3,13 +3,17 @@ import { motion, useReducedMotion } from 'framer-motion';
 import clsx from 'clsx';
 import type {
   DecisionOption,
-  DecisionProblem,
   DecisionSceneProps,
   MissionId,
   Player,
   ResourceKey,
 } from '../../shared/types';
 import { RESOURCE_ORDER } from '../../shared/scoring';
+import {
+  findIncident,
+  planRiskFor,
+  type IncidentSeverity,
+} from '../../content/incidents';
 import {
   GaugeBar,
   HudButton,
@@ -18,16 +22,7 @@ import {
   PlayerBadge,
   StatusPill,
 } from '../../shared/ui';
-import issProblems from '../../content/problems.iss';
-import moonProblems from '../../content/problems.moon';
-import marsProblems from '../../content/problems.mars';
 import styles from './DecisionScene.module.css';
-
-const PROBLEMS: Record<MissionId, DecisionProblem[]> = {
-  iss: issProblems,
-  moon: moonProblems,
-  mars: marsProblems,
-};
 
 const MISSIONS: Record<MissionId, { number: number; label: string }> = {
   iss: { number: 1, label: 'ISS' },
@@ -43,6 +38,18 @@ const RESOURCE_LABELS: Record<ResourceKey, string> = {
   food: 'Food',
   shielding: 'Shielding',
   spares: 'Spares',
+};
+
+const SEVERITY_LABEL: Record<IncidentSeverity, string> = {
+  caution: 'Caution',
+  warning: 'Warning',
+  critical: 'Critical',
+};
+
+const SEVERITY_CLASS: Record<IncidentSeverity, string> = {
+  caution: styles.severityCaution,
+  warning: styles.severityWarning,
+  critical: styles.severityCritical,
 };
 
 function errorText(error: unknown): string {
@@ -61,6 +68,26 @@ function optionLetter(index: number): string {
   return ['A', 'B', 'C'][index] ?? String(index + 1);
 }
 
+function signed(value: number): string {
+  return value > 0 ? `+${value}` : String(value);
+}
+
+function deltaText(delta: number): string {
+  if (delta === 0) return 'at plan level';
+  return `${delta > 0 ? '+' : '−'}${Math.abs(delta)} from plan`;
+}
+
+function formatDuration(minutes: number): string {
+  const safe = Math.max(0, Math.round(minutes));
+  if (safe < 60) return `${safe} min`;
+  const hours = Math.floor(safe / 60);
+  const remainder = safe % 60;
+  if (hours < 48) return remainder === 0 ? `${hours} h` : `${hours} h ${remainder} min`;
+  const days = Math.floor(hours / 24);
+  const leftover = hours % 24;
+  return leftover === 0 ? `${days} d` : `${days} d ${leftover} h`;
+}
+
 export default function DecisionScene({
   roomCode,
   me,
@@ -75,28 +102,58 @@ export default function DecisionScene({
   const reduceMotion = useReducedMotion();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [clocking, setClocking] = useState(() => state.status === 'choosing');
   const revealRef = useRef<HTMLHeadingElement>(null);
   const debriefRef = useRef<HTMLHeadingElement>(null);
 
-  const problems = PROBLEMS[missionId] ?? [];
+  const mission = MISSIONS[missionId];
+  const incidentCount = state.problemIds.length;
   const problemId = state.problemIds[state.index];
-  const problem =
-    problems.find((candidate) => candidate.id === problemId) ?? problems[0];
+  const problem = problemId ? findIncident(missionId, problemId) : undefined;
+  const previousIncident =
+    state.index > 0
+      ? findIncident(missionId, state.problemIds[state.index - 1] ?? '')
+      : undefined;
+  const nextIncident = findIncident(
+    missionId,
+    state.problemIds[state.index + 1] ?? '',
+  );
+  const lastIncident =
+    incidentCount > 0
+      ? findIncident(missionId, state.problemIds[incidentCount - 1] ?? '')
+      : undefined;
+  const risk = planRiskFor(plan.score);
+  const previousMet = previousIncident?.met ?? 'Launch';
+  const previousMinutes = previousIncident?.metMinutes ?? 0;
+  const jumpMinutes = problem ? Math.max(0, problem.metMinutes - previousMinutes) : 0;
   const currentPick = problem
     ? state.picks.find((pick) => pick.problemId === problem.id) ?? null
     : null;
-  const chosenOption = problem && currentPick
-    ? problem.options.find((option) => option.id === currentPick.optionId) ?? null
-    : null;
+  const chosenOption =
+    problem && currentPick
+      ? problem.options.find((option) => option.id === currentPick.optionId) ?? null
+      : null;
   const turnPlayer =
     players.find((player) => player.id === state.turnPlayerId) ?? players[0] ?? me;
   const host = players.find((player) => player.isHost) ?? me;
   const meIsTurn = state.status === 'choosing' && me.id === state.turnPlayerId;
-  const isLastProblem = state.index >= state.problemIds.length - 1;
-  const mission = MISSIONS[missionId];
+  const isLastProblem = state.index >= incidentCount - 1;
   const score = scoreState(state.scoreAfter);
   const stepLabel = state.status === 'debrief' ? 'Debrief' : 'Decision phase';
   const missionTitle = `Mission ${mission.number} · ${mission.label}`;
+
+  useEffect(() => {
+    if (state.status !== 'choosing' || !problem) {
+      setClocking(false);
+      return;
+    }
+    setClocking(true);
+    const timer = window.setTimeout(
+      () => setClocking(false),
+      reduceMotion ? 120 : 1100,
+    );
+    return () => window.clearTimeout(timer);
+  }, [state.status, state.index, problem, reduceMotion]);
 
   useEffect(() => {
     if (state.status === 'revealed') {
@@ -146,7 +203,7 @@ export default function DecisionScene({
         me={me}
       >
         <HudPanel title="Decision phase">
-          <p>No decision problems are loaded for this mission.</p>
+          <p>No incident data is loaded for this mission. Ask the host to restart the run.</p>
         </HudPanel>
       </HudShell>
     );
@@ -178,44 +235,82 @@ export default function DecisionScene({
     >
       <div className={styles.grid}>
         <HudPanel
-          title="Crew & Turn"
-          subtitle="Round-robin by join order"
+          title="Crew & Timeline"
+          subtitle={`${incidentCount} incident${incidentCount === 1 ? '' : 's'} on this run`}
           className={styles.left}
           scroll
         >
-          <div className={styles.progressBlock}>
-            <div className={styles.progressHead}>
-              <span className={styles.sectionLabel}>Incident progress</span>
+          <div className={styles.timelineBlock}>
+            <div className={styles.timelineHead}>
+              <span className={styles.sectionLabel}>Mission elapsed time</span>
               <span className={styles.progressCount}>
-                {Math.min(state.index + 1, state.problemIds.length)} /{' '}
-                {state.problemIds.length}
+                {Math.min(state.index + 1, incidentCount)} / {incidentCount}
               </span>
             </div>
-            <ol
-              className={styles.progressList}
-              aria-label={`Problem ${state.index + 1} of ${state.problemIds.length}`}
-            >
+            <div className={styles.clockRow}>
+              <span className={styles.clockValue}>{problem.met}</span>
+              <span className={styles.clockPhase}>{problem.phase}</span>
+            </div>
+            <ol className={styles.timelineList} aria-label="Mission incident timeline">
               {state.problemIds.map((id, index) => {
+                const item = findIncident(missionId, id);
                 const done = index < state.index;
                 const current = index === state.index;
                 return (
                   <li
                     key={id}
                     className={clsx(
-                      styles.progressStep,
-                      done && styles.progressDone,
-                      current && styles.progressCurrent,
+                      styles.timelineItem,
+                      done && styles.timelineDone,
+                      current && styles.timelineCurrent,
                     )}
                     aria-current={current ? 'step' : undefined}
                   >
-                    <span aria-hidden="true">{done ? '✓' : String(index + 1)}</span>
-                    <span className={styles.srOnly}>
-                      {done ? 'completed' : current ? 'current' : 'upcoming'}
+                    <span
+                      className={clsx(
+                        styles.timelineDot,
+                        item ? SEVERITY_CLASS[item.severity] : undefined,
+                      )}
+                      aria-hidden="true"
+                    />
+                    <span className={styles.timelineMet}>
+                      {item?.met ?? `#${index + 1}`}
+                    </span>
+                    <span className={styles.timelineTitle}>
+                      {item?.title ?? 'Unknown incident'}
+                    </span>
+                    <span className={styles.timelineState}>
+                      {done ? '✓' : current ? 'NOW' : ''}
                     </span>
                   </li>
                 );
               })}
             </ol>
+            <div className={styles.timelineEnds}>
+              <span>Launch</span>
+              <span>Return</span>
+            </div>
+          </div>
+
+          <div className={styles.riskBlock}>
+            <div className={styles.riskHead}>
+              <span className={styles.sectionLabel}>Plan risk</span>
+              <StatusPill tone={risk.tone}>{risk.label}</StatusPill>
+            </div>
+            <div className={styles.riskMeter} aria-hidden="true">
+              {Array.from({ length: 5 }, (_, index) => (
+                <span
+                  key={index}
+                  className={clsx(
+                    styles.riskTick,
+                    index < incidentCount && styles.riskTickOn,
+                  )}
+                />
+              ))}
+            </div>
+            <p className={styles.riskText}>
+              Plan {plan.score}/100 · {incidentCount} incidents. {risk.detail}
+            </p>
           </div>
 
           <ol
@@ -241,18 +336,13 @@ export default function DecisionScene({
           </ol>
 
           <div className={styles.howTo}>
-            <span className={styles.sectionLabel}>How this works</span>
+            <span className={styles.sectionLabel}>How the timeline works</span>
             <ol className={styles.howList}>
-              <li>Read the incident and the three possible responses.</li>
-              <li>The highlighted player picks one. Everyone shares the result.</li>
-              <li>After the reveal, compare your choice with what really happened.</li>
+              <li>Mission time advances between events.</li>
+              <li>A sudden event interrupts the mission. One player chooses.</li>
+              <li>Thin margins let more faults reach the crew.</li>
             </ol>
           </div>
-
-          <p className={styles.ruleNote}>
-            Only the player whose turn it is can choose. The crew&apos;s resources
-            and score carry from problem to problem.
-          </p>
         </HudPanel>
 
         <HudPanel
@@ -260,7 +350,9 @@ export default function DecisionScene({
           subtitle={
             state.status === 'debrief'
               ? 'Every choice, and what it cost'
-              : `Incident ${state.index + 1} of ${state.problemIds.length}`
+              : state.status === 'revealed'
+                ? `Outcome · ${problem.met}`
+                : `Incident ${state.index + 1} of ${incidentCount}`
           }
           className={styles.center}
           scroll
@@ -276,6 +368,10 @@ export default function DecisionScene({
               >
                 {mission.label} decisions complete
               </h1>
+              <p className={styles.debriefMeta}>
+                Plan {plan.score}/100 · {incidentCount} incidents triggered
+                {lastIncident ? ` · last event ${lastIncident.met}` : ''}
+              </p>
 
               <div className={styles.debriefScoreRow}>
                 <div className={styles.debriefScore}>
@@ -310,19 +406,19 @@ export default function DecisionScene({
                 <div className={styles.tableWrap}>
                   <table className={styles.table}>
                     <caption className={styles.srOnly}>
-                      Each problem, the player who chose, and what they picked
+                      Each event, the player who chose, and what they picked
                     </caption>
                     <thead>
                       <tr>
-                        <th scope="col">#</th>
+                        <th scope="col">MET</th>
                         <th scope="col">Incident</th>
                         <th scope="col">Player</th>
                         <th scope="col">Choice</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {state.problemIds.map((id, index) => {
-                        const definition = problems.find((item) => item.id === id);
+                      {state.problemIds.map((id) => {
+                        const definition = findIncident(missionId, id);
                         const pick = state.picks.find((item) => item.problemId === id);
                         const option = definition?.options.find(
                           (item) => item.id === pick?.optionId,
@@ -332,7 +428,9 @@ export default function DecisionScene({
                           : undefined;
                         return (
                           <tr key={id}>
-                            <td className={styles.tableIndex}>{index + 1}</td>
+                            <td className={styles.tableMet}>
+                              {definition?.met ?? '—'}
+                            </td>
                             <td>{definition?.title ?? 'Unknown incident'}</td>
                             <td>
                               {player ? (
@@ -377,7 +475,7 @@ export default function DecisionScene({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
             >
-              <span className={styles.eyebrow}>Outcome</span>
+              <span className={styles.eyebrow}>Outcome · {problem.met}</span>
               <h1
                 className={styles.revealTitle}
                 ref={revealRef}
@@ -450,6 +548,10 @@ export default function DecisionScene({
                     <p className={styles.lastNote}>
                       That was the final incident. The debrief is next.
                     </p>
+                  ) : nextIncident ? (
+                    <p className={styles.nextNote}>
+                      Mission time continues. Next event at {nextIncident.met}.
+                    </p>
                   ) : null}
                 </>
               ) : (
@@ -472,7 +574,7 @@ export default function DecisionScene({
                       ? 'Saving…'
                       : isLastProblem
                         ? 'View debrief'
-                        : 'Next problem'}
+                        : 'Next event'}
                   </HudButton>
                 ) : (
                   <p className={styles.waitNote}>
@@ -481,16 +583,66 @@ export default function DecisionScene({
                 )}
               </div>
             </motion.div>
+          ) : clocking ? (
+            <div className={styles.timeJump} aria-live="polite">
+              <span className={styles.eyebrow}>Mission time passing</span>
+              <div className={styles.jumpClockRow}>
+                <span className={styles.jumpFrom}>{previousMet}</span>
+                <span className={styles.jumpArrow} aria-hidden="true">
+                  →
+                </span>
+                <span className={styles.jumpNow}>{problem.met}</span>
+              </div>
+              <div className={styles.jumpTrack} aria-hidden="true">
+                <span className={styles.jumpSweep} />
+              </div>
+              <p className={styles.jumpText}>
+                {jumpMinutes > 0
+                  ? `${formatDuration(jumpMinutes)} of mission time pass. Then a sudden event interrupts ${problem.phase}.`
+                  : `A sudden event interrupts ${problem.phase}.`}
+              </p>
+              <div className={styles.jumpAlert}>
+                <span className={styles.jumpPulse} aria-hidden="true" />
+                <span className={styles.jumpAlertText}>Sudden event</span>
+                <span
+                  className={clsx(
+                    styles.severityChip,
+                    SEVERITY_CLASS[problem.severity],
+                  )}
+                >
+                  {SEVERITY_LABEL[problem.severity]}
+                </span>
+              </div>
+            </div>
           ) : (
-            <>
+            <motion.div
+              key={problem.id}
+              className={styles.eventView}
+              initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+            >
               <div className={styles.problemCard}>
+                <div className={styles.eventAlert}>
+                  <span className={styles.eventAlertDot} aria-hidden="true" />
+                  <span>Sudden event</span>
+                </div>
                 <div className={styles.problemMeta}>
-                  <span className={styles.eyebrow}>Incoming incident</span>
-                  <span className={styles.problemIndex}>
-                    #{String(state.index + 1).padStart(2, '0')}
+                  <span className={styles.eyebrow}>{problem.alarm}</span>
+                  <span className={styles.problemMetaRight}>
+                    <span
+                      className={clsx(
+                        styles.severityChip,
+                        SEVERITY_CLASS[problem.severity],
+                      )}
+                    >
+                      {SEVERITY_LABEL[problem.severity]}
+                    </span>
+                    <span className={styles.problemIndex}>{problem.met}</span>
                   </span>
                 </div>
                 <h1 className={styles.problemTitle}>{problem.title}</h1>
+                <p className={styles.eventPhase}>Crew status: {problem.phase}</p>
                 <p className={styles.briefing}>{problem.briefing}</p>
               </div>
 
@@ -510,7 +662,7 @@ export default function DecisionScene({
                 <span className={styles.turnText}>
                   {meIsTurn
                     ? 'It is your turn to choose'
-                    : `is choosing. You can read along.`}
+                    : 'is choosing. You can read along.'}
                 </span>
               </div>
 
@@ -545,20 +697,13 @@ export default function DecisionScene({
 
               <p className={styles.chooseNote} aria-live="polite">
                 {meIsTurn
-                  ? 'Choose one response. The consequences apply to the whole crew.'
+                  ? 'Choose one response. The consequences apply to the whole crew and carry into the rest of the mission.'
                   : `Only ${turnPlayer.name} can choose right now.`}
               </p>
-
-              {error ? (
-                <p className={styles.error} role="alert">
-                  <span aria-hidden="true">▲ </span>
-                  {error}
-                </p>
-              ) : null}
-            </>
+            </motion.div>
           )}
 
-          {state.status !== 'revealed' && error && state.status === 'debrief' ? (
+          {error ? (
             <p className={styles.error} role="alert">
               <span aria-hidden="true">▲ </span>
               {error}
@@ -573,7 +718,10 @@ export default function DecisionScene({
           scroll
         >
           <div className={styles.scoreBlock}>
-            <span className={styles.sectionLabel}>Mission score</span>
+            <div className={styles.scoreHead}>
+              <span className={styles.sectionLabel}>Mission score</span>
+              <span className={styles.scoreMet}>{problem.met}</span>
+            </div>
             <div className={styles.scoreRow}>
               <span className={styles.scoreBig} key={state.scoreAfter}>
                 {state.scoreAfter}
@@ -608,7 +756,7 @@ export default function DecisionScene({
           <div className={styles.log}>
             <span className={styles.sectionLabel}>Decision log</span>
             {state.problemIds.map((id, index) => {
-              const definition = problems.find((item) => item.id === id);
+              const definition = findIncident(missionId, id);
               const pick = state.picks.find((item) => item.problemId === id);
               const option = definition?.options.find(
                 (item) => item.id === pick?.optionId,
@@ -641,8 +789,8 @@ export default function DecisionScene({
           <div className={styles.rulesBox}>
             <span className={styles.sectionLabel}>Decision rule</span>
             <p>
-              Turns follow join order and repeat. Everyone shares the resource and
-              score changes.
+              Time advances between events. Thin planning margins trigger more
+              incidents, and everyone shares the result.
             </p>
           </div>
 
@@ -686,13 +834,4 @@ function TurnRow({ player, index, isTurn, hasPicked, isMe }: TurnRowProps) {
       </span>
     </li>
   );
-}
-
-function signed(value: number): string {
-  return value > 0 ? `+${value}` : String(value);
-}
-
-function deltaText(delta: number): string {
-  if (delta === 0) return 'at plan level';
-  return `${delta > 0 ? '+' : '−'}${Math.abs(delta)} from plan`;
 }
