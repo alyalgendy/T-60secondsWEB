@@ -192,6 +192,28 @@
   color: var(--accent);
 }
 
+.timelineUnknown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  opacity: 0.72;
+}
+
+.unknownLine {
+  flex: 1 1 auto;
+  height: 1px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(138, 160, 192, 0.45) 0 3px,
+    transparent 3px 7px
+  );
+}
+
 .timelineEnds {
   display: flex;
   align-items: center;
@@ -220,19 +242,20 @@
 }
 
 .riskMeter {
-  display: flex;
-  gap: 3px;
-}
-
-.riskTick {
-  flex: 1 1 0;
   height: 4px;
+  overflow: hidden;
   background: rgba(138, 160, 192, 0.18);
 }
 
-.riskTickOn {
-  background: linear-gradient(90deg, var(--accent-2), var(--danger));
-  box-shadow: 0 0 6px rgba(255, 93, 108, 0.28);
+.riskFill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-2), var(--accent));
+  transition: width 300ms ease-out;
+}
+
+.riskFillDanger {
+  background: linear-gradient(90deg, var(--danger), var(--accent-2));
 }
 
 .riskText {

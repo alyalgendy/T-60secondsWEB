@@ -114,10 +114,6 @@ export default function DecisionScene({
     state.index > 0
       ? findIncident(missionId, state.problemIds[state.index - 1] ?? '')
       : undefined;
-  const nextIncident = findIncident(
-    missionId,
-    state.problemIds[state.index + 1] ?? '',
-  );
   const lastIncident =
     incidentCount > 0
       ? findIncident(missionId, state.problemIds[incidentCount - 1] ?? '')
@@ -236,7 +232,7 @@ export default function DecisionScene({
       <div className={styles.grid}>
         <HudPanel
           title="Crew & Timeline"
-          subtitle={`${incidentCount} incident${incidentCount === 1 ? '' : 's'} on this run`}
+          subtitle="Logged time only"
           className={styles.left}
           scroll
         >
@@ -244,7 +240,7 @@ export default function DecisionScene({
             <div className={styles.timelineHead}>
               <span className={styles.sectionLabel}>Mission elapsed time</span>
               <span className={styles.progressCount}>
-                {Math.min(state.index + 1, incidentCount)} / {incidentCount}
+                Event {state.index + 1}
               </span>
             </div>
             <div className={styles.clockRow}>
@@ -252,7 +248,7 @@ export default function DecisionScene({
               <span className={styles.clockPhase}>{problem.phase}</span>
             </div>
             <ol className={styles.timelineList} aria-label="Mission incident timeline">
-              {state.problemIds.map((id, index) => {
+              {state.problemIds.slice(0, state.index + 1).map((id, index) => {
                 const item = findIncident(missionId, id);
                 const done = index < state.index;
                 const current = index === state.index;
@@ -280,12 +276,16 @@ export default function DecisionScene({
                       {item?.title ?? 'Unknown incident'}
                     </span>
                     <span className={styles.timelineState}>
-                      {done ? '✓' : current ? 'NOW' : ''}
+                      {done ? '✓' : 'NOW'}
                     </span>
                   </li>
                 );
               })}
             </ol>
+            <div className={styles.timelineUnknown} aria-hidden="true">
+              <span className={styles.unknownLine} />
+              <span>Time ahead is unlogged</span>
+            </div>
             <div className={styles.timelineEnds}>
               <span>Launch</span>
               <span>Return</span>
@@ -298,18 +298,16 @@ export default function DecisionScene({
               <StatusPill tone={risk.tone}>{risk.label}</StatusPill>
             </div>
             <div className={styles.riskMeter} aria-hidden="true">
-              {Array.from({ length: 5 }, (_, index) => (
-                <span
-                  key={index}
-                  className={clsx(
-                    styles.riskTick,
-                    index < incidentCount && styles.riskTickOn,
-                  )}
-                />
-              ))}
+              <span
+                className={clsx(
+                  styles.riskFill,
+                  risk.tone === 'danger' && styles.riskFillDanger,
+                )}
+                style={{ width: `${Math.max(0, Math.min(100, plan.score))}%` }}
+              />
             </div>
             <p className={styles.riskText}>
-              Plan {plan.score}/100 · {incidentCount} incidents. {risk.detail}
+              Plan {plan.score}/100 · {risk.detail}
             </p>
           </div>
 
@@ -340,7 +338,7 @@ export default function DecisionScene({
             <ol className={styles.howList}>
               <li>Mission time advances between events.</li>
               <li>A sudden event interrupts the mission. One player chooses.</li>
-              <li>Thin margins let more faults reach the crew.</li>
+              <li>Faults arrive without warning.</li>
             </ol>
           </div>
         </HudPanel>
@@ -352,7 +350,7 @@ export default function DecisionScene({
               ? 'Every choice, and what it cost'
               : state.status === 'revealed'
                 ? `Outcome · ${problem.met}`
-                : `Incident ${state.index + 1} of ${incidentCount}`
+                : `Incident ${state.index + 1}`
           }
           className={styles.center}
           scroll
@@ -548,11 +546,9 @@ export default function DecisionScene({
                     <p className={styles.lastNote}>
                       That was the final incident. The debrief is next.
                     </p>
-                  ) : nextIncident ? (
-                    <p className={styles.nextNote}>
-                      Mission time continues. Next event at {nextIncident.met}.
-                    </p>
-                  ) : null}
+                  ) : (
+                    <p className={styles.nextNote}>Mission time continues.</p>
+                  )}
                 </>
               ) : (
                 <p className={styles.outcomeText}>
@@ -574,7 +570,7 @@ export default function DecisionScene({
                       ? 'Saving…'
                       : isLastProblem
                         ? 'View debrief'
-                        : 'Next event'}
+                        : 'Continue mission'}
                   </HudButton>
                 ) : (
                   <p className={styles.waitNote}>
@@ -755,7 +751,7 @@ export default function DecisionScene({
 
           <div className={styles.log}>
             <span className={styles.sectionLabel}>Decision log</span>
-            {state.problemIds.map((id, index) => {
+            {state.problemIds.slice(0, state.index + 1).map((id, index) => {
               const definition = findIncident(missionId, id);
               const pick = state.picks.find((item) => item.problemId === id);
               const option = definition?.options.find(
@@ -774,7 +770,7 @@ export default function DecisionScene({
                 >
                   <span className={styles.logIndex}>{index + 1}</span>
                   <span className={styles.logText}>
-                    {option?.label ?? 'Pending'}
+                    {option?.label ?? 'In progress'}
                   </span>
                   {player ? (
                     <PlayerBadge player={player} size="sm" showName={false} />
@@ -789,8 +785,8 @@ export default function DecisionScene({
           <div className={styles.rulesBox}>
             <span className={styles.sectionLabel}>Decision rule</span>
             <p>
-              Time advances between events. Thin planning margins trigger more
-              incidents, and everyone shares the result.
+              Time advances between events. Thin planning margins make the
+              mission harder, and everyone shares the result.
             </p>
           </div>
 
