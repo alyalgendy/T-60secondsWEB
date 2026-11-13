@@ -1,0 +1,16 @@
+:root {
+  --bg-0: #04060c;  --bg-1: #0a1020;  --bg-2: #101a30;
+  --panel: rgba(12, 20, 40, 0.72);
+  --panel-border: rgba(79, 209, 255, 0.35);
+  --accent: #4fd1ff;  --accent-2: #ffb347;
+  --ok: #3ddc97;  --warn: #ffb347;  --danger: #ff5d6c;
+  --text: #e6f1ff;  --text-dim: #8aa0c0;
+  --font-display: 'Orbitron', sans-serif;
+  --font-body: 'Rajdhani', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+  --radius: 4px;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px;
+  --space-4: 16px; --space-5: 24px; --space-6: 32px;
+  --glow: 0 0 12px rgba(79, 209, 255, 0.45);
+}
+/* PLAYER_COLORS (index = joinOrder): #4fd1ff  #ffb347  #c792ff  #7dff9b */

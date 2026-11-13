@@ -1,0 +1,29 @@
+.wrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: 5px 9px;
+  border: 1px solid rgba(79, 209, 255, 0.3);
+  border-radius: var(--radius);
+  background: rgba(4, 8, 18, 0.55);
+}
+
+.label {
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--accent);
+  text-shadow: var(--glow);
+}
+
+.done .value {
+  color: var(--danger);
+  text-shadow: 0 0 12px rgba(255, 93, 108, 0.5);
+}

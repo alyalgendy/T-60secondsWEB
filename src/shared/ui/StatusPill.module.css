@@ -1,0 +1,48 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.icon {
+  display: inline-grid;
+  place-items: center;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: currentColor;
+  color: var(--bg-0);
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ok {
+  color: var(--ok);
+  background: rgba(61, 220, 151, 0.07);
+}
+
+.warn {
+  color: var(--warn);
+  background: rgba(255, 179, 71, 0.07);
+}
+
+.danger {
+  color: var(--danger);
+  background: rgba(255, 93, 108, 0.07);
+}
+
+.info {
+  color: var(--accent);
+  background: rgba(79, 209, 255, 0.07);
+}
