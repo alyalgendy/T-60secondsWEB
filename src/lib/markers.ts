@@ -1,3 +1,10 @@
+import {
+  checkLaunch,
+  scorePlan,
+  type MissionConfig,
+  type PlanDraft,
+  type PlanningPlayer,
+} from "@/game/planning";
 import type { AnchorId } from "./anchors";
 import { isValidRoomCode } from "./room-code";
 import { MAX_PLAYERS, type RoomView } from "./types";
@@ -119,6 +126,101 @@ export function getLobbyMarkers(room: RoomView, youId: string): Marker[] {
       kind: "context",
       severity: "info",
       label: `${openSeats} ${openSeats === 1 ? "seat" : "seats"} open`,
+    });
+  }
+
+  return markers;
+}
+
+export interface MoonMarkerInput {
+  config: MissionConfig;
+  draft: PlanDraft;
+  players: PlanningPlayer[];
+  youId: string;
+}
+
+/**
+ * Moon planning markers. They point at state ("fuel below minimum", "waiting on
+ * the crew") and never at which slider value would be "correct".
+ */
+export function getMoonMarkers(input: MoonMarkerInput): Marker[] {
+  const markers: Marker[] = [];
+  const score = scorePlan(input.config, input.draft);
+  const launch = checkLaunch(input.config, input.draft);
+  const crew = input.players.filter((player) => player.connected);
+  const you = input.players.find((player) => player.id === input.youId);
+  const ready = new Set(input.draft.readyPlayerIds);
+  const waiting = crew.filter((player) => !ready.has(player.id));
+
+  if (!input.draft.craftId) {
+    markers.push({
+      id: "moon-no-craft",
+      anchor: "moon-craft",
+      kind: "attention",
+      severity: "attention",
+      label: "Choose a lander to set the mass budget",
+    });
+  }
+
+  const below = score.coverage.filter((item) => item.status === "below-min");
+  if (below.length > 0) {
+    markers.push({
+      id: "moon-below-min",
+      anchor: "moon-resources",
+      kind: "state",
+      severity: "critical",
+      label:
+        below.length === 1
+          ? `${below[0].label} below minimum`
+          : `${below.length} resources below minimum`,
+    });
+  }
+
+  if (score.massUsed > score.massBudget) {
+    markers.push({
+      id: "moon-over-mass",
+      anchor: "moon-status",
+      kind: "state",
+      severity: "critical",
+      label: "Mass over budget",
+    });
+  }
+
+  if (!ready.has(input.youId)) {
+    markers.push({
+      id: "moon-you-standby",
+      anchor: "moon-ready",
+      kind: "attention",
+      severity: "attention",
+      label: "Lock your plan when you're set",
+    });
+  }
+
+  if (you?.isHost) {
+    if (waiting.length > 0) {
+      markers.push({
+        id: "moon-waiting-crew",
+        anchor: "moon-launch",
+        kind: "attention",
+        severity: "attention",
+        label: `Waiting on ${waiting.map((player) => player.name).join(", ")}`,
+      });
+    } else if (launch.ok) {
+      markers.push({
+        id: "moon-cleared",
+        anchor: "moon-launch",
+        kind: "attention",
+        severity: "info",
+        label: "All crew ready — launch the mission",
+      });
+    }
+  } else if (waiting.length === 0 && launch.ok) {
+    markers.push({
+      id: "moon-commander-cleared",
+      anchor: "moon-launch",
+      kind: "context",
+      severity: "info",
+      label: "Commander can launch",
     });
   }
 

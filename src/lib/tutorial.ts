@@ -1,6 +1,6 @@
 import type { StaticAnchorId } from "./anchors";
 
-export type TutorialPhase = "landing" | "lobby";
+export type TutorialPhase = "landing" | "lobby" | "moon";
 
 export interface TutorialStep {
   id: string;
@@ -56,6 +56,27 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     anchor: "invite-card",
     title: "Up to four crew",
     body: "Share the link. Dropped players keep their seat for two minutes, so a refresh doesn't cost anyone their spot.",
+  },
+  {
+    id: "moon-craft",
+    phase: "moon",
+    anchor: "moon-craft",
+    title: "Pick your ride",
+    body: "The lander sets your mass budget. A bigger bay gives you more margin; heavier ships cost more game units and carry more risk.",
+  },
+  {
+    id: "moon-resources",
+    phase: "moon",
+    anchor: "moon-resources",
+    title: "Balance the load",
+    body: "Every unit spends mass. Fuel and shielding matter more here. Anything below its minimum blocks launch — the markers call it out.",
+  },
+  {
+    id: "moon-ready",
+    phase: "moon",
+    anchor: "moon-ready",
+    title: "Lock in together",
+    body: "Everyone edits the same live draft. Lock your plan when you are happy; the Commander launches once the whole crew is ready and every resource clears its minimum.",
   },
 ];
 

@@ -19,7 +19,7 @@ export function MarkerBadge({ marker }: { marker: Marker }) {
       <span
         className={cn(
           "size-1.5 rounded-full bg-current",
-          marker.severity !== "info" && "animate-pulse",
+          marker.severity !== "info" && "animate-pulse motion-reduce:animate-none",
         )}
         aria-hidden
       />

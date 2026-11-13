@@ -17,6 +17,13 @@ export const ANCHORS = [
   "host-badge",
   "invite-card",
   "activity-log",
+  // moon planning
+  "moon-brief",
+  "moon-craft",
+  "moon-resources",
+  "moon-status",
+  "moon-ready",
+  "moon-launch",
 ] as const;
 
 export type StaticAnchorId = (typeof ANCHORS)[number];
