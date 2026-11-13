@@ -1,77 +1,145 @@
-# T-60 Seconds // Mission Control
+# Space Mission Design Game
 
-A co-op mission simulator for 1–4 players in the browser. Turn-based core with a
-60-second real-time prologue. This build ships the **online lobby**.
+A co-op web game for the NASA Space Apps Challenge. A disease threatens Earth
+and the cure must come from space. 1–4 players join a room with a game code and
+plan three missions together: the **ISS**, then the **Moon**, then **Mars**.
 
-## What works right now
+Built with Vite + React 18 + TypeScript, plain CSS Modules, and Firebase
+Realtime Database.
 
-- Create a room, share a five-character code or invite link, join from up to
-  four browsers/devices.
-- Live crew list, ready states, flight log, presence ("signal lost" seats held
-  for two minutes), host migration, reconnect, kick, leave.
-- Commander can launch preflight and return to assembly.
-- Markers and guided briefing on every screen, skippable and replayable.
-
-Not built yet: the scramble, allocation, mission turns, crises, win/lose.
-
-## Run it locally (no account needed)
+## Run it
 
 ```bash
 npm install
+cp .env.example .env.local   # then fill in your Firebase values
 npm run dev
 ```
 
-This starts Next.js on <http://localhost:3000> and the Firebase Realtime
-Database emulator on port 9000. Open two browser windows, create a room in one,
-join with the code in the other.
+Open http://localhost:5173. The lobby is fully playable. Until the other scenes
+land, the router shows a placeholder with a host-only **Skip step (dev)** button
+so you can walk the whole flow.
 
-- `npm run test:lobby` runs the end-to-end lobby suite against the emulator.
-- `npm run typecheck` and `npm run build` are part of the definition of done.
+### Build checks
 
-## Take it online (free Firebase project)
-
-The game only needs a Firebase Realtime Database; there is no server to run.
-
-1. Create a project at <https://console.firebase.google.com> (Spark/free plan).
-2. **Build → Realtime Database → Create Database.** Pick a region.
-3. **Project settings → Your apps → Web app** and copy the config values.
-4. Put them in `.env.local`:
-
-   ```bash
-   NEXT_PUBLIC_FIREBASE_API_KEY=...
-   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
-   NEXT_PUBLIC_FIREBASE_DATABASE_URL=https://<project>-default-rtdb.firebaseio.com
-   NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
-   NEXT_PUBLIC_FIREBASE_APP_ID=...
-   NEXT_PUBLIC_FIREBASE_USE_EMULATOR=0
-   ```
-
-5. Point the CLI at your project and deploy the rules:
-
-   ```bash
-   npx firebase login
-   npx firebase use --add        # pick your project, alias it "default"
-   npm run deploy:rules
-   ```
-
-6. Deploy the app (Vercel or any Next.js host) and set the same environment
-   variables there.
-
-`database.rules.json` is currently open (no auth) so playtests need no sign-up.
-Before a public launch, add Firebase Anonymous Auth + App Check and tighten the
-rules — see `AGENTS.md`.
-
-## Layout
-
-```
-src/app/                 landing + /room/[code]
-src/components/          markers, tutorial provider
-src/hooks/useLobby.ts    room lifecycle: join, presence, live state
-src/lib/lobby-service.ts the only place that talks to Firebase
-src/lib/markers.ts       marker selectors (state -> what to highlight)
-src/lib/tutorial.ts      briefing content (data, not branches)
-src/lib/anchors.ts       anchor registry typed across markers + tutorial
-scripts/smoke-lobby.ts   end-to-end lobby test
+```bash
+npm run build        # tsc --noEmit + vite build
+npx tsc --noEmit     # typecheck only
 ```
 
-Read `AGENTS.md` before adding a screen, mechanic or mission.
+## Mock mode (no Firebase needed)
+
+Open `/?scene=<FlowStep>&mock=<1-4>` to render one step with fake players and
+local state:
+
+- `/?scene=lobby&mock=2`
+- `/?scene=plan-iss&mock=3`
+- `/?scene=decision-moon&mock=4`
+- `/?scene=results&mock=1`
+
+A small amber bar in the bottom-right lets you jump between steps. Mock mode
+does not touch Firebase at all, so it works with an empty `.env.local`.
+
+In mock planning steps, **Lock plan** locks or unlocks every mock seat at once,
+so you can reach the all-ready **Launch mission** state with 2–4 fake players.
+In decision steps, `me` follows the current turn player.
+
+## Firebase setup (hackathon, no auth)
+
+1. Create a free project at https://console.firebase.google.com.
+2. Build → Realtime Database → Create database (test mode is fine).
+3. Project settings → Your apps → Web app → copy the config values into
+   `.env.local` (the `VITE_FIREBASE_*` keys).
+4. Deploy the open rules in `database.rules.json`:
+
+   ```bash
+   npx firebase-tools deploy --only database --project <your-project-id>
+   ```
+
+   Or paste this in the Realtime Database Rules tab:
+
+   ```json
+   {
+     "rules": {
+       "rooms": {
+         "$code": {
+           ".read": true,
+           ".write": true
+         }
+       }
+     }
+   }
+   ```
+
+   **This is intentionally open for the hackathon.** Anyone with a room code can
+   read and write that room. Do not reuse these rules for production.
+
+## How a room works
+
+- A host creates a room. The app generates a 4-character code from
+  `ABCDEFGHJKMNPQRSTUVWXYZ23456789` (no look-alike characters).
+- Players join with the code. Colors and `joinOrder` are assigned automatically
+  (max 4). `playerId` is kept in `localStorage`, so a refresh rejoins the same
+  seat.
+- If the host disconnects, the connected player with the lowest `joinOrder`
+  claims the host badge automatically.
+- Data lives under `rooms/{code}`:
+  - `meta` — `{ createdAt, hostId, status }`
+  - `players/{playerId}` — `Player`
+  - `flow` — `{ step: FlowStep, updatedAt }`
+  - `drafts/{missionId}` — live, co-edited `PlanDraft`
+  - `plans/{missionId}` — `MissionPlan`, written on launch
+  - `decision/{missionId}` — shared `DecisionState`
+
+Scenes never talk to Firebase directly. They receive props from `src/App.tsx`
+and call the callbacks (`updateDraft`, `toggleReady`, `launch`, `choose`,
+`nextProblem`, `finish`, `onContinue`).
+
+## Repo map
+
+```
+public/videos/        intro.mp4, iss.mp4, moon.mp4, mars.mp4 (provided)
+src/
+  App.tsx             step router (M1)
+  sceneRegistry.ts    auto-discovers scenes/configs/problems (M1)
+  shared/             M1 ONLY: types, tokens, firebase, hooks, scoring, UI kit
+  scenes/
+    lobby/            M1
+    iss/              M2
+    moon/             M3
+    mars/             M4
+    decision/         M4
+    cutscene/         M4
+    results/          M4
+  content/            decision problems, one file per mission (M4 / content)
+```
+
+### Adding a scene
+
+Scenes are discovered automatically — **do not edit `App.tsx`**:
+
+- Planning scene: `src/scenes/<mission>/config.ts` exporting
+  `missionConfig: MissionConfig`, and `src/scenes/<mission>/index.tsx`
+  exporting the default component that receives `PlanningSceneProps`.
+- Cutscene / decision / results: `src/scenes/<folder>/index.tsx` with a default
+  export receiving `CutsceneProps` / `DecisionSceneProps` / `ResultsSceneProps`.
+- Decision content: `src/content/problems.<mission>.ts` exporting a default
+  `DecisionProblem[]`.
+
+If a folder or config is missing, the router shows a placeholder instead of
+failing the build.
+
+## Videos
+
+Put the provided cutscene files in `public/videos/` with these exact names:
+`intro.mp4`, `iss.mp4`, `moon.mp4`, `mars.mp4`. They are never generated by the
+app. Missing files show the video player's error state until they are added.
+
+## Team workflow
+
+- M1 owns `src/shared/`, `src/App.tsx`, `src/sceneRegistry.ts` and the lobby.
+- M2 owns `src/scenes/iss/`. M3 owns `src/scenes/moon/`.
+- M4 owns `src/scenes/mars/`, `cutscene/`, `decision/`, `results/` and
+  `src/content/`.
+- Use branch `scene/<your-scene>`, small commits, and make sure
+  `npm run build` and `npx tsc --noEmit` pass before you say you are done.
+- If you need a change in `src/shared/`, ask M1 with the exact patch request.
