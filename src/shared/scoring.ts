@@ -1,4 +1,4 @@
-import { clamp, emptyResources } from './constants';
+import { clamp, emptyResources, RESOURCE_KEYS } from './constants';
 import type {
   MissionConfig,
   MissionId,
@@ -6,6 +6,9 @@ import type {
   PlanScore,
   ResourceKey,
 } from './types';
+
+/** Stable UI order for resource rows across planning / decision screens. */
+export const RESOURCE_ORDER: readonly ResourceKey[] = RESOURCE_KEYS;
 
 /**
  * The mass budget for a plan. When a craft is selected, its capacity is the
