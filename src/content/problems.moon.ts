@@ -1,10 +1,15 @@
-import type { DecisionProblem } from '../shared/types';
+import type { MissionIncident } from './incidents';
 
-export const moonProblems: DecisionProblem[] = [
+export const moonProblems: MissionIncident[] = [
   {
     id: 'moon-array-latch',
     missionId: 'moon',
     title: 'Solar array will not latch',
+    met: 'MET 00:42',
+    metMinutes: 42,
+    severity: 'caution',
+    phase: 'Translunar coast · power check',
+    alarm: 'ARRAY DEPLOY · LATCH NOT CONFIRMED',
     briefing:
       'A lunar cargo lander has arrived in orbit, but one of its solar arrays did not fully deploy and latch. The array still makes power, just less than planned, so the lander cannot start its descent with a comfortable power margin. The team has one pass over the ground station to choose.',
     options: [
@@ -52,6 +57,11 @@ export const moonProblems: DecisionProblem[] = [
     id: 'moon-comms-pause',
     missionId: 'moon',
     title: 'Silence from the relay',
+    met: 'MET 03:18',
+    metMinutes: 198,
+    severity: 'warning',
+    phase: 'Lunar orbit · relay handover',
+    alarm: 'COMM LOSS · RELAY SILENT',
     briefing:
       'A communications relay in lunar orbit stops answering. It was healthy an hour ago. The last telemetry showed a power reboot, and now the relay is silent. The next crewed landing depends on this relay to talk to Earth.',
     options: [
@@ -96,9 +106,66 @@ export const moonProblems: DecisionProblem[] = [
     },
   },
   {
+    id: 'moon-apollo13',
+    missionId: 'moon',
+    title: 'Oxygen tank rupture',
+    met: 'MET 06:55',
+    metMinutes: 415,
+    severity: 'critical',
+    phase: 'Translunar coast · cryo stir',
+    alarm: 'CRITICAL · OXYGEN TANK 2 RUPTURE',
+    briefing:
+      'Two days from Earth, a sharp bang shakes the spacecraft. Oxygen tank 2 in the service module has ruptured, and the crew is losing oxygen, electrical power and propulsion. The lunar landing is off. The crew must find a way around the Moon and back to Earth.',
+    options: [
+      {
+        id: 'lm-lifeboat',
+        label: 'Use the lunar module as a lifeboat',
+        reasoning:
+          'The lunar module has its own oxygen, power and engine. Powering down the command module saves its remaining supplies for re-entry.',
+        effects: { oxygen: -8, power: -6, water: -4 },
+        scoreDelta: 15,
+        outcome:
+          'The crew moves into the lunar module and powers down the command module. The lander becomes the crew\'s lifeboat for the trip home.',
+      },
+      {
+        id: 'continue-to-land',
+        label: 'Continue to the Moon and land',
+        reasoning:
+          'The landing hardware is still attached and the surface mission is the goal. The lunar module is sized for two people on the surface, not three people for a return trip.',
+        effects: { oxygen: -14, power: -12 },
+        scoreDelta: -20,
+        outcome:
+          'The crew keeps the landing option open too long. With oxygen falling, they abort and swing around the Moon with even less margin than before.',
+      },
+      {
+        id: 'direct-return',
+        label: 'Fire the main engine for a direct return',
+        reasoning:
+          'A quick burn could point the spacecraft home. The explosion damaged the service module, and the main engine may not be usable.',
+        effects: { fuel: -16, power: -6 },
+        scoreDelta: -10,
+        outcome:
+          'The service module engine is not trusted after the explosion. The crew uses the lunar module engine to set up a free-return path instead.',
+      },
+    ],
+    realWorld: {
+      summary:
+        'Apollo 13 was 56 hours into its mission on April 13, 1970, when oxygen tank 2 exploded. The crew lost all oxygen in about three hours and used the lunar module as a lifeboat. They looped around the Moon on a free-return trajectory and returned safely.',
+      source: {
+        title: 'Apollo 13 Accident',
+        url: 'https://nssdc.gsfc.nasa.gov/planetary/lunar/ap13acc.html',
+      },
+    },
+  },
+  {
     id: 'moon-dormant-rover',
     missionId: 'moon',
     title: 'Rover goes quiet for the night',
+    met: 'Day 3 · 00:20',
+    metMinutes: 4340,
+    severity: 'caution',
+    phase: 'Lunar surface · rover night watch',
+    alarm: 'ROVER LOSS · NO CARRIER',
     briefing:
       'A small rover on the Moon stops calling home as the two-week lunar night begins. Its batteries are cold, and the team thinks it has entered a low-power hibernation. The rover may wake when the Sun returns, but its clock may have stopped.',
     options: [
@@ -139,6 +206,58 @@ export const moonProblems: DecisionProblem[] = [
       source: {
         title: 'NASA\'s Hibernating Mars Rover May Not Call Home',
         url: 'https://www.jpl.nasa.gov/news/nasas-hibernating-mars-rover-may-not-call-home/',
+      },
+    },
+  },
+  {
+    id: 'moon-apollo17-fender',
+    missionId: 'moon',
+    title: 'The rover loses a fender',
+    met: 'Day 4 · 00:10',
+    metMinutes: 5770,
+    severity: 'caution',
+    phase: 'Lunar surface · rover traverse 2',
+    alarm: 'ROVER DAMAGE · REAR FENDER LOST',
+    briefing:
+      'On the second rover traverse, a rear fender tears away and lunar dust sprays over the astronauts and the rover\'s batteries. The rover still drives, but dust is coating the suits and radiators. The next geology stop is six kilometres away.',
+    options: [
+      {
+        id: 'map-fender',
+        label: 'Tape maps over the opening',
+        reasoning:
+          'A quick field repair can keep most dust off the crew and equipment. It uses maps and tape, but the rover keeps its range.',
+        effects: { spares: -4 },
+        scoreDelta: 12,
+        outcome:
+          'The crew tapes four lunar maps over the fender. The repair holds, and the rover reaches the next stop with far less dust.',
+      },
+      {
+        id: 'slow-return',
+        label: 'Drive slowly and skip the stop',
+        reasoning:
+          'Slowing down reduces the dust cloud. It also cuts the science time and uses more power for the longer drive.',
+        effects: { power: -8, food: -2 },
+        scoreDelta: 2,
+        outcome:
+          'The rover crawls back to the lander. The crew skips the stop and spends hours cleaning dust from the suits.',
+      },
+      {
+        id: 'full-speed',
+        label: 'Keep driving at full speed',
+        reasoning:
+          'The schedule stays intact. Dust can clog the rover and coat the crew\'s suits and radiators.',
+        effects: { spares: -4, water: -6 },
+        scoreDelta: -12,
+        outcome:
+          'Dust coats the rover and suits. The crew aborts the traverse early and spends the rest of the day cleaning equipment.',
+      },
+    ],
+    realWorld: {
+      summary:
+        'During Apollo 17 in December 1972, the lunar roving vehicle\'s rear fender broke. Astronauts Eugene Cernan and Harrison Schmitt taped four lunar maps over the opening to keep dust off themselves and the rover. The maps are now in the Smithsonian collection.',
+      source: {
+        title: 'Maps, Fender Extension, Lunar Roving Vehicle, Apollo 17',
+        url: 'https://airandspace.si.edu/collection-objects/maps-fender-extension-lunar-roving-vehicle-apollo-17/nasm_A19760010000',
       },
     },
   },

@@ -1,10 +1,15 @@
-import type { DecisionProblem } from '../shared/types';
+import type { MissionIncident } from './incidents';
 
-export const marsProblems: DecisionProblem[] = [
+export const marsProblems: MissionIncident[] = [
   {
     id: 'mars-safe-mode',
     missionId: 'mars',
     title: 'Safe mode, minutes away',
+    met: 'MET 03:10',
+    metMinutes: 190,
+    severity: 'warning',
+    phase: 'Cruise · orbit insertion preparation',
+    alarm: 'FAULT · MAIN COMPUTER OFFLINE',
     briefing:
       'A fault puts the spacecraft in safe mode just before Mars orbit insertion. Radio signals take minutes to tens of minutes each way, so the team cannot watch every step in real time. The backup computer is talking, but the main computer is off.',
     options: [
@@ -52,6 +57,11 @@ export const marsProblems: DecisionProblem[] = [
     id: 'mars-old-software',
     missionId: 'mars',
     title: 'Old software, silent spacecraft',
+    met: 'MET 12:40',
+    metMinutes: 760,
+    severity: 'warning',
+    phase: 'Cruise · cure data relay checkout',
+    alarm: 'COMM LOSS · CARRIER DRIFTING',
     briefing:
       'A Mars orbiter that has run for years suddenly stops answering. Its signal is weak and drifting. The team can send commands "in the blind", without knowing whether the spacecraft receives them. The orbiter carries the cure data relay.',
     options: [
@@ -99,6 +109,11 @@ export const marsProblems: DecisionProblem[] = [
     id: 'mars-radiation-storm',
     missionId: 'mars',
     title: 'Radiation storm at Mars',
+    met: 'MET 28:15',
+    metMinutes: 1695,
+    severity: 'critical',
+    phase: 'Mars surface · cure reactor assembly',
+    alarm: 'SOLAR PARTICLE EVENT · SHELTER',
     briefing:
       'A radiation storm is on its way from the Sun. The crew is far from Earth\'s magnetic field and atmosphere, and the spacecraft has only a thin hull. The storm will arrive in hours, and the crew is in the middle of a surface operation.',
     options: [
@@ -139,6 +154,110 @@ export const marsProblems: DecisionProblem[] = [
       source: {
         title: 'Solar Storms and Flares',
         url: 'https://science.nasa.gov/sun/solar-storms-and-flares/',
+      },
+    },
+  },
+  {
+    id: 'mars-dust-storm',
+    missionId: 'mars',
+    title: 'A storm swallows the Sun',
+    met: 'Day 4 · 00:00',
+    metMinutes: 5760,
+    severity: 'critical',
+    phase: 'Mars surface · solar array field',
+    alarm: 'DUST STORM · SOLAR OUTPUT FALLING',
+    briefing:
+      'A regional dust storm has grown until it circles the planet. The Sun dims to a dull disc, and the habitat\'s solar arrays make less power every hour. The crew needs power for heating through the Martian night, and the storm may last for weeks.',
+    options: [
+      {
+        id: 'conserve-power',
+        label: 'Shut down non-critical systems and wait',
+        reasoning:
+          'Cutting experiments and non-essential heaters protects the power needed for life support. It also pauses the cure work.',
+        effects: { power: -8, food: -2 },
+        scoreDelta: 12,
+        outcome:
+          'The habitat drops to minimum power. Heaters and life support stay on, and the crew waits out the storm with the cure work paused.',
+      },
+      {
+        id: 'keep-working',
+        label: 'Keep the reactor work running on batteries',
+        reasoning:
+          'The cure schedule stays on track for another day. Battery power is the crew\'s reserve for the cold night.',
+        effects: { power: -14, spares: -2 },
+        scoreDelta: -14,
+        outcome:
+          'The reactor work continues for a day, then the batteries hit their reserve limit. The crew stops anyway and has less power for the night.',
+      },
+      {
+        id: 'deploy-panels',
+        label: 'Deploy the spare solar panels',
+        reasoning:
+          'Extra panel area can recover some power even in dim light. The crew must work outside in dust and wind to set them up.',
+        effects: { spares: -8, power: 6 },
+        scoreDelta: 4,
+        outcome:
+          'The crew deploys two spare panels. Dust still cuts output, but the extra area keeps the heaters above their limit.',
+      },
+    ],
+    realWorld: {
+      summary:
+        'In June 2018, a planet-encircling dust storm darkened Mars and cut off solar power to NASA\'s Opportunity rover. The rover went silent on June 10, 2018, and the team never heard from it again despite months of recovery attempts.',
+      source: {
+        title: 'Six Things About Opportunity\'s Recovery Efforts',
+        url: 'https://www.jpl.nasa.gov/news/six-things-about-opportunitys-recovery-efforts/',
+      },
+    },
+  },
+  {
+    id: 'mars-insight-mole',
+    missionId: 'mars',
+    title: 'The heat probe is stuck',
+    met: 'Day 6 · 02:30',
+    metMinutes: 8790,
+    severity: 'caution',
+    phase: 'Mars surface · subsurface probe',
+    alarm: 'PROBE STALLED · NO PENETRATION',
+    briefing:
+      'The subsurface heat probe stops hammering after less than a metre. The team thinks it has hit a rock or that the sandy soil is not giving the probe enough friction. The probe is part of the mission\'s geology goal, and the lander\'s arm can reach it.',
+    options: [
+      {
+        id: 'pin-with-scoop',
+        label: 'Pin the probe with the arm scoop',
+        reasoning:
+          'Pressing the probe against the hole wall could give it the friction it needs. The arm is slow and uses power, but the probe stays in place.',
+        effects: { power: -4, spares: -2 },
+        scoreDelta: 12,
+        outcome:
+          'The arm presses the probe against the hole wall. Friction improves, and the probe starts to descend again.',
+      },
+      {
+        id: 'hammer-harder',
+        label: 'Hammer harder in place',
+        reasoning:
+          'More force might break through the obstruction. If the probe is against a rock, it will only use power and stay stuck.',
+        effects: { power: -8 },
+        scoreDelta: -8,
+        outcome:
+          'The probe hammers against the obstruction and makes no progress. The team stops before the motor overheats.',
+      },
+      {
+        id: 'abandon-probe',
+        label: 'Abandon the probe and move on',
+        reasoning:
+          'The crew saves time and power for the seismometer. The mission loses its subsurface temperature measurement.',
+        effects: { spares: -2 },
+        scoreDelta: 2,
+        outcome:
+          'The team writes off the heat probe. The seismometer keeps running, but the mission cannot measure the planet\'s internal heat flow.',
+      },
+    ],
+    realWorld: {
+      summary:
+        'NASA\'s InSight lander began hammering its heat probe, the "mole", on Feb. 28, 2019. It soon stalled, and the team found the soil was not providing enough friction. Engineers used the robotic arm to push and pin the probe, and it eventually buried itself, though not as deep as planned.',
+      source: {
+        title: 'NASA\'s Mars InSight Lander to Push on Top of the Mole',
+        url: 'https://www.jpl.nasa.gov/news/nasas-mars-insight-lander-to-push-on-top-of-the-mole/',
       },
     },
   },
