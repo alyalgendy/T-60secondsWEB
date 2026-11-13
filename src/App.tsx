@@ -101,6 +101,7 @@ function RoomApp() {
     if (
       roomCode &&
       playerId &&
+      room.meta &&
       !room.loading &&
       !room.me &&
       !room.error
@@ -110,7 +111,7 @@ function RoomApp() {
         'Your seat was not found in this room. Join again with the same code.',
       );
     }
-  }, [roomCode, playerId, room.loading, room.me, room.error]);
+  }, [roomCode, playerId, room.meta, room.loading, room.me, room.error]);
 
   const attach = useCallback((code: string, id: string) => {
     try {

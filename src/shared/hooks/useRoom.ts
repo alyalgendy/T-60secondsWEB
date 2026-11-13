@@ -23,25 +23,27 @@ export function useRoom(
 ): UseRoomResult {
   const [meta, setMeta] = useState<RoomMeta | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
-  const [loading, setLoading] = useState(Boolean(roomCode && playerId));
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const hostCheckRef = useRef(false);
   const metaRef = useRef<RoomMeta | null>(null);
   const playersRef = useRef<Player[]>([]);
+  const requestKey = roomCode && playerId ? `${roomCode}:${playerId}` : null;
 
   useEffect(() => {
     if (!roomCode || !playerId) {
-      setLoading(false);
       setMeta(null);
       setPlayers([]);
+      setLoadedKey(null);
       metaRef.current = null;
       playersRef.current = [];
       return;
     }
 
+    const key = `${roomCode}:${playerId}`;
     const database = db;
     if (!database) {
-      setLoading(false);
+      setLoadedKey(key);
       setError(
         'Firebase is not configured. Copy .env.example to .env.local and add your project values.',
       );
@@ -52,11 +54,10 @@ export function useRoom(
     let metaLoaded = false;
     let playersLoaded = false;
 
-    setLoading(true);
     setError(null);
 
     const finishLoading = () => {
-      if (!cancelled && metaLoaded && playersLoaded) setLoading(false);
+      if (!cancelled && metaLoaded && playersLoaded) setLoadedKey(key);
     };
 
     const maybeClaimHost = (list: Player[]) => {
@@ -99,8 +100,10 @@ export function useRoom(
       },
       (message) => {
         metaLoaded = true;
-        if (!cancelled) setError(message);
-        finishLoading();
+        if (!cancelled) {
+          setError(message);
+          setLoadedKey(key);
+        }
       },
     );
 
@@ -117,8 +120,10 @@ export function useRoom(
       },
       (message) => {
         playersLoaded = true;
-        if (!cancelled) setError(message);
-        finishLoading();
+        if (!cancelled) {
+          setError(message);
+          setLoadedKey(key);
+        }
       },
     );
 
@@ -145,6 +150,7 @@ export function useRoom(
   }, [roomCode, playerId]);
 
   const me = players.find((player) => player.id === playerId) ?? null;
+  const loading = Boolean(requestKey) && loadedKey !== requestKey;
 
   return { meta, players, me, loading, error };
 }
