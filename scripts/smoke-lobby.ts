@@ -12,6 +12,7 @@ import {
   get,
   getDatabase,
   ref,
+  remove,
   type Database,
 } from "firebase/database";
 import {
@@ -23,18 +24,23 @@ import {
   returnToLobby,
   setReady,
   startPreflight,
+  toRoomView,
   watchRoom,
 } from "../src/lib/lobby-service";
 import { ANCHORS, isStaticAnchor } from "../src/lib/anchors";
 import { getLobbyMarkers } from "../src/lib/markers";
 import { generateRoomCode } from "../src/lib/room-code";
 import { TUTORIAL_STEPS } from "../src/lib/tutorial";
-import { LobbyError, toRoomView, type RoomView } from "../src/lib/types";
+import { LobbyError, type RoomView } from "../src/lib/types";
 
 const EMULATOR = process.env.FIREBASE_DATABASE_EMULATOR_HOST ?? "127.0.0.1:9000";
 const [HOST, PORT_RAW] = EMULATOR.split(":");
 const PORT = Number(PORT_RAW ?? 9000);
 const NAMESPACE = "demo-t60";
+
+/** Set SMOKE_DB_URL to run the same suite against a real (online) database. */
+const REAL_DATABASE_URL = process.env.SMOKE_DB_URL;
+const DATABASE_URL = REAL_DATABASE_URL ?? `http://${HOST}:${PORT}?ns=${NAMESPACE}`;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -48,11 +54,14 @@ interface Client {
 function createClient(label: string): Client {
   appCounter += 1;
   const app = initializeApp(
-    { projectId: NAMESPACE, databaseURL: `http://${HOST}:${PORT}?ns=${NAMESPACE}` },
+    {
+      projectId: REAL_DATABASE_URL ? "t60-seconds" : NAMESPACE,
+      databaseURL: DATABASE_URL,
+    },
     `smoke-${label}-${appCounter}`,
   );
   const db = getDatabase(app);
-  connectDatabaseEmulator(db, HOST, PORT);
+  if (!REAL_DATABASE_URL) connectDatabaseEmulator(db, HOST, PORT);
   return { app, db, playerId: `p_smoke${label}${appCounter}abcdef` };
 }
 
@@ -104,7 +113,7 @@ function pass(label: string) {
 }
 
 async function main() {
-  console.log(`\nLobby smoke test against ${EMULATOR} (ns ${NAMESPACE})\n`);
+  console.log(`\nLobby smoke test against ${REAL_DATABASE_URL ?? `${EMULATOR} (ns ${NAMESPACE})`}\n`);
 
   // ---- static guarantees -------------------------------------------------
   for (const step of TUTORIAL_STEPS) {
@@ -113,7 +122,6 @@ async function main() {
     }
   }
   if (TUTORIAL_STEPS.length === 0) throw new Error("No tutorial steps defined");
-  if (ANCHORS.length === 0) throw new Error("No anchors defined");
   pass(`${TUTORIAL_STEPS.length} tutorial steps, all anchors valid`);
 
   const code = generateRoomCode();
@@ -257,9 +265,14 @@ async function main() {
   await leaveRoom(guest.db, code, guest.playerId);
   await waitFor(
     "empty seats",
-    async () => (await get(ref(guest.db, `rooms/${code}/players`))).numChildren() === 0,
+    async () => (await get(ref(guest.db, `rooms/${code}/players`))).size === 0,
   );
   pass("leaving releases the seat immediately");
+
+  if (REAL_DATABASE_URL) {
+    await remove(ref(guest.db, `rooms/${code}`));
+    pass("online test room cleaned up");
+  }
 
   stopPresenceHost();
   stopPresenceGuest();

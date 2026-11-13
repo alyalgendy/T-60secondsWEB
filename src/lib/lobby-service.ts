@@ -91,7 +91,7 @@ export async function enterRoom(input: EnterRoomInput): Promise<void> {
     await createRoomRecord(db, code, playerId);
   } else if (create) {
     const alreadySeated = roomSnapshot.child(`players/${playerId}`).exists();
-    if (!alreadySeated && roomSnapshot.child("players").numChildren() > 0) {
+    if (!alreadySeated && roomSnapshot.child("players").size > 0) {
       throw new LobbyError("room-exists", "That code is already in use. Join it instead.");
     }
   }
