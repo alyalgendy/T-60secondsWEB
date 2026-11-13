@@ -1,0 +1,36 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "rooms": {
+      "$room": {
+        ".read": true,
+        ".write": true,
+        ".validate": "newData.hasChildren(['createdAt', 'hostId', 'phase']) && newData.child('phase').isString() && (newData.child('phase').val() === 'LOBBY' || newData.child('phase').val() === 'BRIEFING')",
+        "createdAt": { ".validate": "newData.isNumber()" },
+        "hostId": { ".validate": "newData.isString() && newData.val().length <= 64" },
+        "phase": { ".validate": "newData.isString()" },
+        "players": {
+          "$playerId": {
+            ".validate": "newData.hasChildren(['name', 'color', 'ready', 'connected', 'joinedAt'])",
+            "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 16" },
+            "color": { ".validate": "newData.isString()" },
+            "ready": { ".validate": "newData.isBoolean()" },
+            "connected": { ".validate": "newData.isBoolean()" },
+            "joinedAt": { ".validate": "newData.isNumber()" },
+            "$other": { ".validate": false }
+          }
+        },
+        "log": {
+          "$entryId": {
+            ".validate": "newData.hasChildren(['at', 'text'])",
+            "at": { ".validate": "newData.isNumber()" },
+            "text": { ".validate": "newData.isString() && newData.val().length <= 120" },
+            "$other": { ".validate": false }
+          }
+        },
+        "$other": { ".validate": false }
+      }
+    }
+  }
+}
