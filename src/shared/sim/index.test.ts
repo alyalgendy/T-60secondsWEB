@@ -366,6 +366,25 @@ describe('pure mission simulation', () => {
     expect(next.systems.thermal.status).toBe('degraded');
   });
 
+  it('never writes undefined fields when diagnosing (Firebase rejects them)', () => {
+    const state = runningState([event('pending')]);
+    const next = applyMissionIntent(
+      state,
+      intent('diag', 'p1', {
+        kind: 'diagnose',
+        eventId: 'comms-1',
+        responseId: 'reroute',
+      }),
+      { responsesByEvent: { 'comms-1': [{ id: 'reroute', correct: true }] } },
+      1000,
+    );
+    expect(next.events[0].status).toBe('diagnosed');
+    const undefinedKeys = Object.entries(next.events[0])
+      .filter(([, value]) => value === undefined)
+      .map(([key]) => key);
+    expect(undefinedKeys).toEqual([]);
+  });
+
   it('requires a delivered spare and a second player at the assist station', () => {
     const state = runningState([
       event('diagnosed', {

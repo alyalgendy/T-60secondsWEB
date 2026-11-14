@@ -9,6 +9,12 @@ import type {
   SystemId,
 } from '../types';
 
+function definedOnly<T extends object>(value: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, entry]) => entry !== undefined),
+  ) as Partial<T>;
+}
+
 export interface DesignStats {
   mass: number;
   power: number;
@@ -596,10 +602,13 @@ export function applyMissionIntent(
             ...(response.degradedSave
               ? { repairedBy: [intent.playerId], resolvedAt: now }
               : {}),
-            requiresSpare: response.requiresSpare ?? candidate.requiresSpare,
-            requiresAssistSystem:
-              response.requiresAssistSystem ?? candidate.requiresAssistSystem,
-            repairRequired: response.repairSeconds ?? candidate.repairRequired,
+            // Firebase rejects undefined values, so only write fields that exist.
+            ...definedOnly({
+              requiresSpare: response.requiresSpare ?? candidate.requiresSpare,
+              requiresAssistSystem:
+                response.requiresAssistSystem ?? candidate.requiresAssistSystem,
+              repairRequired: response.repairSeconds ?? candidate.repairRequired,
+            }),
           }
         : candidate,
     );
