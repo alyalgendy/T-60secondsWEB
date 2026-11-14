@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import type { MissionPlan, PlanningSceneProps, ResourceKey } from '../../shared/types';
-import { RESOURCE_ORDER, scorePlan } from '../../shared/scoring';
+import { RESOURCE_ORDER, getLaunchBlockers, scorePlan } from '../../shared/scoring';
 import {
   FactCard,
   GaugeBar,
@@ -63,6 +63,10 @@ export default function MarsScene({
   }, [draft.resources, draft.craftId]);
 
   const scorePreview = useMemo(() => scorePlan(config, draft), [draft]);
+  const launchBlockers = useMemo(
+    () => getLaunchBlockers(config, draft),
+    [draft],
+  );
 
   const selectedCraft = config.crafts.find((craft) => craft.id === draft.craftId);
   const iAmReady = draft.readyPlayerIds.includes(me.id);
@@ -72,14 +76,14 @@ export default function MarsScene({
   ).length;
   const allReady = players.length > 0 && readyCount === players.length;
   const launchVisible = me.isHost && allReady;
-  const canLaunch = launchVisible && scorePreview.problems.length === 0 && !launching;
+  const canLaunch = launchVisible && launchBlockers.length === 0 && !launching;
   const lastEditor =
     draft.lastEditedBy && draft.lastEditedBy !== me.id
       ? players.find((player) => player.id === draft.lastEditedBy) ?? null
       : null;
 
   const blockers: string[] = [];
-  if (scorePreview.problems.length > 0) blockers.push(...scorePreview.problems);
+  if (launchBlockers.length > 0) blockers.push(...launchBlockers);
   if (!allReady) {
     const waiting = players.length - readyCount;
     blockers.push(
