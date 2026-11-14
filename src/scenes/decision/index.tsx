@@ -8,17 +8,21 @@ import type {
   Player,
   ResourceKey,
 } from '../../shared/types';
-import { RESOURCE_ORDER } from '../../shared/scoring';
+import { RESOURCE_ORDER, toReservePercent } from '../../shared/scoring';
 import {
   findIncident,
   planRiskFor,
   type IncidentSeverity,
 } from '../../content/incidents';
+import { missionConfig as issConfig } from '../iss/config';
+import { missionConfig as moonConfig } from '../moon/config';
+import { missionConfig as marsConfig } from '../mars/config';
 import {
   GaugeBar,
   HudButton,
   HudPanel,
   HudShell,
+  MissionViz,
   PlayerBadge,
   StatusPill,
 } from '../../shared/ui';
@@ -29,6 +33,11 @@ const MISSIONS: Record<MissionId, { number: number; label: string }> = {
   moon: { number: 2, label: 'Moon' },
   mars: { number: 3, label: 'Mars' },
 };
+const MISSION_CONFIGS = {
+  iss: issConfig,
+  moon: moonConfig,
+  mars: marsConfig,
+} as const;
 
 const RESOURCE_LABELS: Record<ResourceKey, string> = {
   fuel: 'Fuel',
@@ -72,9 +81,10 @@ function signed(value: number): string {
   return value > 0 ? `+${value}` : String(value);
 }
 
-function deltaText(delta: number): string {
+function deltaText(delta: number, cap: number): string {
   if (delta === 0) return 'at plan level';
-  return `${delta > 0 ? '+' : '−'}${Math.abs(delta)} from plan`;
+  const percent = Math.round((Math.abs(delta) / Math.max(1, cap)) * 100);
+  return `${delta > 0 ? '+' : '−'}${percent}% from planned reserve`;
 }
 
 function formatDuration(minutes: number): string {
@@ -239,6 +249,17 @@ export default function DecisionScene({
           className={styles.left}
           scroll
         >
+          <MissionViz
+            config={MISSION_CONFIGS[missionId]}
+            crewCount={players.length}
+            resources={state.resourcesAfter}
+            elapsedDays={
+              (state.status === 'debrief'
+                ? lastIncident?.metMinutes ?? problem.metMinutes
+                : problem.metMinutes) / 1440
+            }
+            phase={problem.phase}
+          />
           <div className={styles.timelineBlock}>
             <div className={styles.timelineHead}>
               <span className={styles.sectionLabel}>Mission elapsed time</span>
@@ -388,18 +409,22 @@ export default function DecisionScene({
               </div>
 
               <div className={styles.finalResources}>
-                {RESOURCE_ORDER.map((key) => (
-                  <GaugeBar
-                    key={key}
-                    compact
-                    label={RESOURCE_LABELS[key]}
-                    value={state.resourcesAfter[key] ?? 0}
-                    max={100}
-                    hint={deltaText(
-                      (state.resourcesAfter[key] ?? 0) - (plan.resources[key] ?? 0),
-                    )}
-                  />
-                ))}
+                {RESOURCE_ORDER.map((key) => {
+                  const cap =
+                    MISSION_CONFIGS[missionId].needs.find((need) => need.key === key)?.max ?? 100;
+                  const delta =
+                    (state.resourcesAfter[key] ?? 0) - (plan.resources[key] ?? 0);
+                  return (
+                    <GaugeBar
+                      key={key}
+                      compact
+                      label={RESOURCE_LABELS[key]}
+                      value={toReservePercent(state.resourcesAfter[key] ?? 0, cap)}
+                      max={100}
+                      hint={deltaText(delta, cap)}
+                    />
+                  );
+                })}
               </div>
 
               <div className={styles.choicesBlock}>
@@ -503,18 +528,24 @@ export default function DecisionScene({
                       </span>
                       {signed(chosenOption.scoreDelta)} score
                     </span>
-                    {effects.map(({ key, value }) => (
-                      <span
-                        key={key}
-                        className={clsx(
-                          styles.effectChip,
-                          value >= 0 ? styles.effectGood : styles.effectBad,
-                        )}
-                      >
-                        <span aria-hidden="true">{value >= 0 ? '+' : '−'}</span>
-                        {Math.abs(value)} {RESOURCE_LABELS[key]}
-                      </span>
-                    ))}
+                    {effects.map(({ key, value }) => {
+                      const cap =
+                        MISSION_CONFIGS[missionId].needs.find((need) => need.key === key)?.max ??
+                        100;
+                      const percent = Math.round((Math.abs(value) / cap) * 100);
+                      return (
+                        <span
+                          key={key}
+                          className={clsx(
+                            styles.effectChip,
+                            value >= 0 ? styles.effectGood : styles.effectBad,
+                          )}
+                        >
+                          <span aria-hidden="true">{value >= 0 ? '+' : '−'}</span>
+                          {percent}% {RESOURCE_LABELS[key]}
+                        </span>
+                      );
+                    })}
                   </div>
 
                   <div className={styles.realWorld}>
@@ -738,15 +769,17 @@ export default function DecisionScene({
             aria-label="Current resources"
           >
             {RESOURCE_ORDER.map((key) => {
+              const cap =
+                MISSION_CONFIGS[missionId].needs.find((need) => need.key === key)?.max ?? 100;
               const delta = (state.resourcesAfter[key] ?? 0) - (plan.resources[key] ?? 0);
               return (
                 <GaugeBar
                   key={key}
                   compact
                   label={RESOURCE_LABELS[key]}
-                  value={state.resourcesAfter[key] ?? 0}
+                  value={toReservePercent(state.resourcesAfter[key] ?? 0, cap)}
                   max={100}
-                  hint={delta === 0 ? 'at plan level' : deltaText(delta)}
+                  hint={delta === 0 ? 'at plan level' : deltaText(delta, cap)}
                 />
               );
             })}

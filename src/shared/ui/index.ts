@@ -1,5 +1,7 @@
 export { HudShell } from './HudShell';
 export type { HudShellProps } from './HudShell';
+export { MissionViz } from './MissionViz';
+export type { MissionVizProps } from './MissionViz';
 export { HudPanel } from './HudPanel';
 export type { HudPanelProps } from './HudPanel';
 export { HudButton } from './HudButton';

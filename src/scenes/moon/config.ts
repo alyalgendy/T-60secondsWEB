@@ -3,9 +3,8 @@ import type { MissionConfig } from "@/game/planning";
 /**
  * Moon / Artemis surface sortie.
  *
- * All amounts, masses and costs below are GAME UNITS chosen for balance — they
- * are not real spacecraft masses. Educational figures are cited in `facts` and
- * in the craft `source` links.
+ * Resource sliders are percentages of the mission-specific reserve cap. Lander
+ * capacity and cost are game-balance points, not real spacecraft figures.
  *
  * Facts reflect NASA's published Artemis plan as of late 2026: Artemis III is a
  * crewed demonstration in low Earth orbit; lunar landings begin with Artemis IV.
@@ -21,7 +20,7 @@ export const missionConfig: MissionConfig = {
     {
       key: "fuel",
       label: "Fuel",
-      unit: "units",
+      unit: "%",
       min: 60,
       ideal: 90,
       max: 110,
@@ -31,7 +30,7 @@ export const missionConfig: MissionConfig = {
     {
       key: "shielding",
       label: "Shielding",
-      unit: "units",
+      unit: "%",
       min: 18,
       ideal: 30,
       max: 45,
@@ -41,7 +40,7 @@ export const missionConfig: MissionConfig = {
     {
       key: "power",
       label: "Power",
-      unit: "units",
+      unit: "%",
       min: 25,
       ideal: 40,
       max: 50,
@@ -51,7 +50,7 @@ export const missionConfig: MissionConfig = {
     {
       key: "oxygen",
       label: "Oxygen",
-      unit: "units",
+      unit: "%",
       min: 20,
       ideal: 30,
       max: 40,
@@ -61,7 +60,7 @@ export const missionConfig: MissionConfig = {
     {
       key: "water",
       label: "Water",
-      unit: "units",
+      unit: "%",
       min: 18,
       ideal: 28,
       max: 38,
@@ -71,7 +70,7 @@ export const missionConfig: MissionConfig = {
     {
       key: "food",
       label: "Food",
-      unit: "units",
+      unit: "%",
       min: 16,
       ideal: 26,
       max: 34,
@@ -81,7 +80,7 @@ export const missionConfig: MissionConfig = {
     {
       key: "spares",
       label: "Spares",
-      unit: "units",
+      unit: "%",
       min: 8,
       ideal: 16,
       max: 22,
@@ -94,18 +93,18 @@ export const missionConfig: MissionConfig = {
       id: "starship-hls",
       name: "Starship HLS",
       description:
-        "SpaceX's Human Landing System concept for Artemis. Game profile: the biggest bay in the roster, paid for with the highest cost and risk.",
+        "SpaceX's Human Landing System concept for Artemis. The game profile gives it the largest loadout budget, paired with the highest game cost and risk.",
       massCapacity: 108,
       crewCapacity: 4,
       risk: "high",
       cost: 32,
       pros: [
         "Biggest bay: full shielding plus spare supplies for the surface phase",
-        "Largest mass margin if the crew over-provisions",
+        "Largest loadout margin if the crew over-provisions",
       ],
       cons: [
         "Needs several tanker flights before it can leave Earth orbit",
-        "Highest game-unit cost, and the riskiest option in the roster",
+        "Highest game-point cost, and the riskiest option in the roster",
       ],
       source: {
         title: "NASA — Human Landing System",
@@ -122,7 +121,7 @@ export const missionConfig: MissionConfig = {
       risk: "medium",
       cost: 22,
       pros: [
-        "Lower game-unit cost than Starship HLS",
+        "Lower game-point cost than Starship HLS",
         "Bay fits every resource line at its ideal level",
       ],
       cons: [
@@ -144,7 +143,7 @@ export const missionConfig: MissionConfig = {
       risk: "low",
       cost: 14,
       pros: [
-        "Lowest game-unit cost of the three",
+        "Lowest game-point cost of the three",
         "Supplies cached at Gateway reduce launch-day pressure",
       ],
       cons: [

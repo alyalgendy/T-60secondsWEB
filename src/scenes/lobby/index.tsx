@@ -36,7 +36,7 @@ const MISSION_PATH = [
     id: 'moon',
     number: '02',
     name: 'The Moon',
-    note: 'Choose a lander and balance fuel, mass and risk.',
+    note: 'Choose a lander and balance reserves, loadout and risk.',
   },
   {
     id: 'mars',
@@ -94,10 +94,23 @@ export default function LobbyScene({
     return clean;
   };
 
+  const requestGameFullscreen = () => {
+    const root = document.documentElement;
+    if (document.fullscreenElement || !root.requestFullscreen) return;
+    try {
+      void root.requestFullscreen().catch(() => {
+        // Fullscreen is an enhancement; browsers may deny it without blocking play.
+      });
+    } catch {
+      // Older browsers may throw before returning a promise.
+    }
+  };
+
   const handleCreate = async (event: FormEvent) => {
     event.preventDefault();
     const clean = requireName();
     if (!clean) return;
+    requestGameFullscreen();
     setBusy(true);
     setLocalError(null);
     try {
@@ -117,6 +130,7 @@ export default function LobbyScene({
       setLocalError('Enter the 4-character room code.');
       return;
     }
+    requestGameFullscreen();
     setBusy(true);
     setLocalError(null);
     try {
@@ -130,6 +144,7 @@ export default function LobbyScene({
   };
 
   const handleStart = async () => {
+    requestGameFullscreen();
     setStarting(true);
     setLocalError(null);
     try {
@@ -274,11 +289,9 @@ export default function LobbyScene({
         <section className={styles.hero}>
           <p className={styles.eyebrow}>NASA Space Apps Challenge</p>
           <h1 className={styles.title}>
-            Space
+            T -60
             <br />
-            Mission
-            <br />
-            <span>Design Game</span>
+            <span>seconds</span>
           </h1>
           <p className={styles.subtitle}>
             A disease threatens Earth. The cure is in space. Plan three missions

@@ -2,6 +2,7 @@ import { useId } from 'react';
 import clsx from 'clsx';
 import type { Player, ResourceNeed } from '../types';
 import type { CSSVars } from './cssVars';
+import { toReservePercent } from '../scoring';
 import { PlayerBadge } from './PlayerBadge';
 import { StatusPill, type StatusTone } from './StatusPill';
 import styles from './ResourceSlider.module.css';
@@ -42,7 +43,9 @@ export function ResourceSlider({
   const inputId = useId();
   const whyId = `${inputId}-why`;
   const tone = toneFor(need, value);
-  const percent = need.max > 0 ? Math.max(0, Math.min(100, (value / need.max) * 100)) : 0;
+  const percent = toReservePercent(value, need.max);
+  const minimum = toReservePercent(need.min, need.max);
+  const ideal = toReservePercent(need.ideal, need.max);
   const showEditor = editor && editor.id !== meId;
 
   return (
@@ -62,8 +65,8 @@ export function ResourceSlider({
             {tone === 'ok' ? 'Ready' : tone === 'warn' ? 'Low' : 'Critical'}
           </StatusPill>
           <span className={styles.value}>
-            {value}
-            <span className={styles.unit}> {need.unit}</span>
+            {percent}
+            <span className={styles.unit}>{need.unit}</span>
           </span>
         </div>
       </div>
@@ -78,7 +81,7 @@ export function ResourceSlider({
         value={value}
         disabled={disabled}
         aria-describedby={whyId}
-        aria-valuetext={`${value} ${need.unit}. Minimum ${need.min}, ideal ${need.ideal}.`}
+        aria-valuetext={`${percent}${need.unit} of this mission's reserve cap. Minimum ${minimum}${need.unit}, ideal ${ideal}${need.unit}.`}
         onChange={(event) => onChange(Number(event.currentTarget.value))}
         style={
           {
@@ -89,10 +92,10 @@ export function ResourceSlider({
       />
 
       <div className={styles.scale} aria-hidden="true">
-        <span>0</span>
-        <span>min {need.min}</span>
-        <span>ideal {need.ideal}</span>
-        <span>{need.max}</span>
+        <span>0{need.unit}</span>
+        <span>min {minimum}{need.unit}</span>
+        <span>ideal {ideal}{need.unit}</span>
+        <span>100{need.unit}</span>
       </div>
 
       <p className={styles.why} id={whyId}>

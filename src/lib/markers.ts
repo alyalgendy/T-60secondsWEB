@@ -163,7 +163,7 @@ export function getMoonMarkers(input: MoonMarkerInput): Marker[] {
       anchor: "moon-craft",
       kind: "attention",
       severity: "attention",
-      label: "Choose a lander to set the mass budget",
+      label: "Choose a lander to set the game loadout budget",
     });
   }
 
@@ -190,7 +190,7 @@ export function getMoonMarkers(input: MoonMarkerInput): Marker[] {
       anchor: "moon-status",
       kind: "state",
       severity: "critical",
-      label: "Mass over budget",
+      label: "Loadout over budget",
     });
   }
 

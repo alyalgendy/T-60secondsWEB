@@ -3,8 +3,8 @@ import type { MissionConfig } from '../../shared/types';
 /**
  * Mars planning config.
  *
- * All resource amounts, mass values and budgets are game units, not kilograms.
- * The only real-world numbers shown to players come from the cited NASA facts.
+ * Resource sliders are percentages of the mission-specific reserve cap. Craft
+ * capacity and loadout cost are game-balance points, not kilograms.
  */
 export const missionConfig: MissionConfig = {
   id: 'mars',
@@ -19,7 +19,7 @@ export const missionConfig: MissionConfig = {
     {
       key: 'fuel',
       label: 'Fuel',
-      unit: 'units',
+      unit: '%',
       min: 55,
       ideal: 85,
       max: 100,
@@ -29,7 +29,7 @@ export const missionConfig: MissionConfig = {
     {
       key: 'power',
       label: 'Power',
-      unit: 'units',
+      unit: '%',
       min: 50,
       ideal: 80,
       max: 100,
@@ -39,7 +39,7 @@ export const missionConfig: MissionConfig = {
     {
       key: 'oxygen',
       label: 'Oxygen',
-      unit: 'units',
+      unit: '%',
       min: 60,
       ideal: 90,
       max: 100,
@@ -49,7 +49,7 @@ export const missionConfig: MissionConfig = {
     {
       key: 'water',
       label: 'Water',
-      unit: 'units',
+      unit: '%',
       min: 55,
       ideal: 85,
       max: 100,
@@ -59,7 +59,7 @@ export const missionConfig: MissionConfig = {
     {
       key: 'food',
       label: 'Food',
-      unit: 'units',
+      unit: '%',
       min: 60,
       ideal: 90,
       max: 100,
@@ -69,7 +69,7 @@ export const missionConfig: MissionConfig = {
     {
       key: 'shielding',
       label: 'Shielding',
-      unit: 'units',
+      unit: '%',
       min: 65,
       ideal: 95,
       max: 100,
@@ -79,7 +79,7 @@ export const missionConfig: MissionConfig = {
     {
       key: 'spares',
       label: 'Spares',
-      unit: 'units',
+      unit: '%',
       min: 45,
       ideal: 75,
       max: 100,
@@ -92,27 +92,27 @@ export const missionConfig: MissionConfig = {
       id: 'pathfinder-hauler',
       name: 'Pathfinder Hauler',
       description:
-        'A roomy transfer craft built for long cargo runs. It gives the crew the most mass to work with, at the cost of a heavier fuel load.',
+        'A fictional roomy transfer craft built for long cargo runs. Its game profile gives the crew the largest loadout budget, at the cost of a heavier fuel allocation.',
       massCapacity: 460,
       crewCapacity: 4,
-      pros: ['Largest mass budget', 'Room for four crew'],
+      pros: ['Largest game loadout budget', 'Room for four crew'],
       cons: ['Heavier fuel load', 'Slower to turn around'],
     },
     {
       id: 'dust-runner',
       name: 'Dust Runner',
       description:
-        'A stripped-down craft with low fuel needs. Its tight mass budget leaves little room for error.',
+        'A fictional stripped-down craft with low fuel needs. Its tight loadout budget leaves little room for error.',
       massCapacity: 400,
       crewCapacity: 3,
       pros: ['Low fuel demand', 'Fast transit'],
-      cons: ['Tightest mass budget', 'Fewer spare slots'],
+      cons: ['Tightest game loadout budget', 'Fewer spare slots'],
     },
     {
       id: 'shielded-long-haul',
       name: 'Shielded Long-Haul',
       description:
-        'A craft with a thick shielding shell and large water tanks. It protects the crew well, but its structure eats into the cargo budget.',
+        'A fictional craft with a thick shielding shell and large water tanks. It protects the crew well, but its structure reduces the game loadout budget.',
       massCapacity: 440,
       crewCapacity: 4,
       pros: ['Extra radiation shielding', 'Large water tanks'],
