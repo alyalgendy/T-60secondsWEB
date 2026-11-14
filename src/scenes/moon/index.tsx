@@ -397,7 +397,7 @@ export default function MoonScene({
 
           <div id="moon-ready">
             <ReadyBar
-              players={players}
+              players={connected}
               readyPlayerIds={draft.readyPlayerIds}
               meId={me.id}
             />
