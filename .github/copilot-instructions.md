@@ -176,3 +176,35 @@ interface MissionEvent {
 - [ ] Old game still works until the V2 flag becomes default
 - [ ] `docs/REBUILD_PLAN.md` updated
 - [ ] PR description lists what changed, assumptions, and anything blocked
+
+## APPENDIX: Events and source pool
+ 
+Read each page before using it. Simplify the story for players and cite it. Do not add details the page does not state.
+ 
+| Event | System | Real basis | Window effect |
+|---|---|---|---|
+| Solar flare or radiation storm confuses star trackers | Navigation | Stardust and a solar flare: https://www.jpl.nasa.gov/news/stardust-spacecraft-encounters-solar-flare/ ; Solar storms and flares: https://science.nasa.gov/sun/solar-storms-and-flares/ | flare |
+| Solar array does not deploy or power drops | Solar Panels | Lucy solar array anomaly: https://svs.gsfc.nasa.gov/20366/ | powerdip |
+| Brief communications pause | Communication | Voyager 1 conserves power, resolves brief communications pause: https://www.jpl.nasa.gov/news/nasas-voyager-1-conserves-power-resolves-brief-communications-pause/ | static |
+| Micrometeoroid hits | Meteorite protection | Onboard systems, micro-meteoroid protection: https://science.nasa.gov/learn/basics-of-space-flight/chapter11-4/ | micrometeoroid |
+| Temperature swing | Temperature control | Same chapter, temperature control subsystems | thermal |
+| Engine or propulsion anomaly | Engine | Same chapter, propulsion subsystems | engine |
+ 
+Not yet checked (open each first, original links had missing hyphens):
+- https://www.jpl.nasa.gov/news/nasas-hibernating-mars-rover-may-not-call-home/
+- https://www.jpl.nasa.gov/news/mariner-iv-crosses-path-with-micrometeoroids/
+- https://www.nasa.gov/history/60-years-ago-mariner-2-first-to-explore-venus/
+- https://www.nasa.gov/solar-system/latest-updates-from-nasa-on-image-recovery/
+- https://www.nasa.gov/missions/new-horizons-team-responds-to-spacecraft-anomaly/
+- https://www.esa.int/articles/about-us/directorates/science/anatomy-of-a-spacecraft
+How the challenge's resources map to the game:
+ 
+| Resource | Used for |
+|---|---|
+| Design and Develop Science Missions (4 segments, CMLs) | Design stages, segment checklist |
+| Mission Design Lab (study levels, disciplines) | Stage names, player roles |
+| Mission Viz | Tracker (section 9) |
+| GMAT | Launch-window trade; stretch: offline trajectory data |
+| A Learning Game About Telescopes | Greyed-out incompatible options; analog missions in the debrief |
+| CubeSat 101 (ConOps) | Stretch: arrange a mission timeline of key events |
+| 2023 VR mission challenge | Tracker feature set: concept, trajectory, timeline, 3D view |
