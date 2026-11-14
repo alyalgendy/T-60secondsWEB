@@ -25,11 +25,7 @@ import type {
 } from '../../shared/types';
 import {
   calculateDesignStats,
-<<<<<<< Updated upstream
-  canLaunch,
   canLaunchEarly,
-=======
->>>>>>> Stashed changes
   createInitialDesignState,
   DESIGN_SECONDS,
   DESIGN_SYSTEMS,
@@ -554,18 +550,13 @@ export default function DesignScene({
 
   if (loading || !state) {
     return (
-<<<<<<< Updated upstream
       <CapsuleShell
         missionId={missionId}
         showOnboarding
-        compactWindow
-        expandedConsole
+        size="large"
         onboardingSteps={DESIGN_TUTORIAL_STEPS}
         onboardingStorageKey="t60.design.tutorial.v1"
       >
-=======
-      <CapsuleShell missionId={missionId} showOnboarding size="large">
->>>>>>> Stashed changes
         <div className={styles.loading}>SYNCING DESIGN</div>
       </CapsuleShell>
     );
@@ -579,19 +570,14 @@ export default function DesignScene({
     );
 
   return (
-<<<<<<< Updated upstream
     <CapsuleShell
       missionId={missionId}
       progress={0.14}
       showOnboarding
-      compactWindow
-      expandedConsole
+      size="large"
       onboardingSteps={DESIGN_TUTORIAL_STEPS}
       onboardingStorageKey="t60.design.tutorial.v1"
     >
-=======
-    <CapsuleShell missionId={missionId} progress={0.14} showOnboarding size="large">
->>>>>>> Stashed changes
       <div className={styles.designConsole} aria-label={`${content.name} mission design`}>
         <header className={styles.topLine}>
           <div className={styles.stages} aria-label="Design stages">
@@ -1207,13 +1193,6 @@ export default function DesignScene({
                   disabled={!me.isHost || !allReady}
                   onClick={launch}
                 >
-<<<<<<< Updated upstream
-                  {state.rushed && expired
-                    ? 'Launch anyway'
-                    : expired
-                      ? 'Launch'
-                      : 'Start mission'}
-=======
                   {hasRedGate && (
                     <span
                       className={styles.launchWarning}
@@ -1224,8 +1203,11 @@ export default function DesignScene({
                       ⚠
                     </span>
                   )}
-                  {state.rushed && expired ? 'Launch anyway' : 'Launch'}
->>>>>>> Stashed changes
+                  {state.rushed && expired
+                    ? 'Launch anyway'
+                    : expired
+                      ? 'Launch'
+                      : 'Start mission'}
                 </button>
               </div>
               <MarkerSlot markers={markers} anchor="design-ready" />

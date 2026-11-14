@@ -126,14 +126,10 @@ interface CapsuleInteriorProps {
   progress: number;
   resources: CapsuleResources;
   showOnboarding: boolean;
-<<<<<<< Updated upstream
-  compactWindow: boolean;
+  size: CapsuleSize;
   expandedConsole: boolean;
   onboardingSteps?: readonly TutorialStep[];
   onboardingStorageKey: string;
-=======
-  size: CapsuleSize;
->>>>>>> Stashed changes
   children: ReactNode;
 }
 
@@ -142,14 +138,10 @@ function CapsuleInterior({
   progress,
   resources,
   showOnboarding,
-<<<<<<< Updated upstream
-  compactWindow,
+  size,
   expandedConsole,
   onboardingSteps,
   onboardingStorageKey,
-=======
-  size,
->>>>>>> Stashed changes
   children,
 }: CapsuleInteriorProps) {
   const { activeWarning, muted, toggleMute } = useWarnings();
@@ -195,11 +187,7 @@ function CapsuleInterior({
 
   return (
     <main
-<<<<<<< Updated upstream
-      className={`${styles.shell} ${compactWindow ? styles.shellCompact : ''} ${expandedConsole ? styles.shellExpandedConsole : ''}`}
-=======
-      className={`${styles.shell} ${size === 'compact' ? styles.shellCompact : ''} ${size === 'large' ? styles.shellLarge : ''}`}
->>>>>>> Stashed changes
+      className={`${styles.shell} ${size === 'compact' ? styles.shellCompact : ''} ${size === 'large' ? styles.shellLarge : ''} ${expandedConsole ? styles.shellExpandedConsole : ''}`}
       data-level={activeWarning?.level ?? 'none'}
       data-effect={activeWarning?.effect ?? 'none'}
       data-size={size}
@@ -356,14 +344,10 @@ export function CapsuleShell({
         progress={progress}
         resources={resources}
         showOnboarding={showOnboarding}
-<<<<<<< Updated upstream
-        compactWindow={compactWindow}
+        size={resolvedSize}
         expandedConsole={expandedConsole}
         onboardingSteps={onboardingSteps}
         onboardingStorageKey={onboardingStorageKey}
-=======
-        size={resolvedSize}
->>>>>>> Stashed changes
       >
         {children}
       </CapsuleInterior>
