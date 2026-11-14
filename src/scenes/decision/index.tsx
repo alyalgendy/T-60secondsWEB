@@ -107,23 +107,26 @@ export default function DecisionScene({
   const debriefRef = useRef<HTMLHeadingElement>(null);
 
   const mission = MISSIONS[missionId];
-  const incidentCount = state.problemIds.length;
-  const problemId = state.problemIds[state.index];
+  // Defensive: Firebase drops empty arrays, so always fall back before use.
+  const picks = Array.isArray(state.picks) ? state.picks : [];
+  const problemIds = Array.isArray(state.problemIds) ? state.problemIds : [];
+  const incidentCount = problemIds.length;
+  const problemId = problemIds[state.index];
   const problem = problemId ? findIncident(missionId, problemId) : undefined;
   const previousIncident =
     state.index > 0
-      ? findIncident(missionId, state.problemIds[state.index - 1] ?? '')
+      ? findIncident(missionId, problemIds[state.index - 1] ?? '')
       : undefined;
   const lastIncident =
     incidentCount > 0
-      ? findIncident(missionId, state.problemIds[incidentCount - 1] ?? '')
+      ? findIncident(missionId, problemIds[incidentCount - 1] ?? '')
       : undefined;
   const risk = planRiskFor(plan.score);
   const previousMet = previousIncident?.met ?? 'Launch';
   const previousMinutes = previousIncident?.metMinutes ?? 0;
   const jumpMinutes = problem ? Math.max(0, problem.metMinutes - previousMinutes) : 0;
   const currentPick = problem
-    ? state.picks.find((pick) => pick.problemId === problem.id) ?? null
+    ? picks.find((pick) => pick.problemId === problem.id) ?? null
     : null;
   const chosenOption =
     problem && currentPick
@@ -248,7 +251,7 @@ export default function DecisionScene({
               <span className={styles.clockPhase}>{problem.phase}</span>
             </div>
             <ol className={styles.timelineList} aria-label="Mission incident timeline">
-              {state.problemIds.slice(0, state.index + 1).map((id, index) => {
+              {problemIds.slice(0, state.index + 1).map((id, index) => {
                 const item = findIncident(missionId, id);
                 const done = index < state.index;
                 const current = index === state.index;
@@ -324,7 +327,7 @@ export default function DecisionScene({
                 isTurn={
                   player.id === state.turnPlayerId && state.status === 'choosing'
                 }
-                hasPicked={state.picks.some(
+                hasPicked={picks.some(
                   (pick) =>
                     pick.problemId === problem.id && pick.playerId === player.id,
                 )}
@@ -415,9 +418,9 @@ export default function DecisionScene({
                       </tr>
                     </thead>
                     <tbody>
-                      {state.problemIds.map((id) => {
+                      {problemIds.map((id) => {
                         const definition = findIncident(missionId, id);
-                        const pick = state.picks.find((item) => item.problemId === id);
+                        const pick = picks.find((item) => item.problemId === id);
                         const option = definition?.options.find(
                           (item) => item.id === pick?.optionId,
                         );
@@ -751,9 +754,9 @@ export default function DecisionScene({
 
           <div className={styles.log}>
             <span className={styles.sectionLabel}>Simulation log</span>
-            {state.problemIds.slice(0, state.index + 1).map((id, index) => {
+            {problemIds.slice(0, state.index + 1).map((id, index) => {
               const definition = findIncident(missionId, id);
-              const pick = state.picks.find((item) => item.problemId === id);
+              const pick = picks.find((item) => item.problemId === id);
               const option = definition?.options.find(
                 (item) => item.id === pick?.optionId,
               );

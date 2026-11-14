@@ -111,6 +111,43 @@ function normalizeDraft(value: PlanDraft | null): PlanDraft | null {
   };
 }
 
+/**
+ * Firebase Realtime Database does not store empty arrays, so a fresh decision
+ * state comes back without `picks` (and potentially without `problemIds`).
+ * Normalise every read so scenes can rely on arrays always being present.
+ */
+export function normalizeDecision(value: DecisionState | null): DecisionState | null {
+  if (!value) return null;
+  const status =
+    value.status === 'revealed' || value.status === 'debrief'
+      ? value.status
+      : 'choosing';
+  return {
+    missionId: value.missionId,
+    problemIds: Array.isArray(value.problemIds)
+      ? value.problemIds.filter((id): id is string => typeof id === 'string')
+      : [],
+    index:
+      typeof value.index === 'number' && value.index >= 0 ? value.index : 0,
+    turnPlayerId: value.turnPlayerId ?? '',
+    picks: Array.isArray(value.picks)
+      ? value.picks.filter(
+          (pick) =>
+            pick &&
+            typeof pick.problemId === 'string' &&
+            typeof pick.playerId === 'string' &&
+            typeof pick.optionId === 'string',
+        )
+      : [],
+    resourcesAfter: { ...emptyResources(), ...(value.resourcesAfter ?? {}) },
+    scoreAfter:
+      typeof value.scoreAfter === 'number' && Number.isFinite(value.scoreAfter)
+        ? value.scoreAfter
+        : 0,
+    status,
+  };
+}
+
 /* ------------------------------------------------------------------ */
 /* Presence                                                            */
 /* ------------------------------------------------------------------ */
@@ -461,7 +498,7 @@ export function subscribeDecision(
   return onValue(
     ref(requireDb(), `rooms/${code}/decision/${missionId}`),
     (snapshot: DataSnapshot) =>
-      callback(snapshot.val() as DecisionState | null),
+      callback(normalizeDecision(snapshot.val() as DecisionState | null)),
     toErrorHandler(onError),
   );
 }
@@ -488,11 +525,17 @@ export function subscribeDecisions(
 ): () => void {
   return onValue(
     ref(requireDb(), `rooms/${code}/decision`),
-    (snapshot: DataSnapshot) =>
-      callback(
+    (snapshot: DataSnapshot) => {
+      const raw =
         (snapshot.val() as Partial<Record<MissionId, DecisionState>> | null) ??
-          {},
-      ),
+        {};
+      const states: Partial<Record<MissionId, DecisionState>> = {};
+      for (const missionId of Object.keys(raw) as MissionId[]) {
+        const state = normalizeDecision(raw[missionId] ?? null);
+        if (state) states[missionId] = state;
+      }
+      callback(states);
+    },
     toErrorHandler(onError),
   );
 }

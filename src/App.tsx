@@ -4,6 +4,7 @@ import {
   ErrorScene,
   LoadingScene,
   PlaceholderScene,
+  SceneErrorBoundary,
 } from './shared/ui';
 import {
   useDecision,
@@ -278,13 +279,26 @@ function RoomApp() {
   }
 
   return (
-    <FlowRouter
-      roomCode={roomCode}
-      me={room.me}
-      players={room.players}
-      step={flow.step}
-      setStep={flow.setStep}
-    />
+    <SceneErrorBoundary
+      key={flow.step}
+      fallback={(error, reset) => (
+        <ErrorScene
+          message={`This step hit an unexpected error: ${error.message}`}
+          onRetry={reset}
+          roomCode={roomCode}
+          me={room.me}
+          players={room.players}
+        />
+      )}
+    >
+      <FlowRouter
+        roomCode={roomCode}
+        me={room.me}
+        players={room.players}
+        step={flow.step}
+        setStep={flow.setStep}
+      />
+    </SceneErrorBoundary>
   );
 }
 

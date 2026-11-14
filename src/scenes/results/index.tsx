@@ -1,15 +1,17 @@
 import { useMemo } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import clsx from 'clsx';
-import type { BaseSceneProps, MissionId, MissionPlan, Player } from '../../shared/types';
+import type {
+  MissionId,
+  MissionPlan,
+  Player,
+  ResultsSceneProps as SharedResultsSceneProps,
+} from '../../shared/types';
 import { HudButton, HudPanel, HudShell, PlayerBadge, StatusPill } from '../../shared/ui';
 import styles from './ResultsScene.module.css';
 
-/** Results props are not in Appendix A yet. Requested from M1; see final notes. */
-export interface ResultsSceneProps extends BaseSceneProps {
-  plans: Partial<Record<MissionId, MissionPlan>>;
-  /** Optional decision-phase totals per mission (0-100). Falls back to plan score. */
-  decisionScores?: Partial<Record<MissionId, number>>;
+/** Results contract from Appendix A, plus an optional replay hook. */
+export interface ResultsSceneProps extends SharedResultsSceneProps {
   onReplay?: () => void | Promise<void>;
 }
 
@@ -119,11 +121,22 @@ export default function ResultsScene({
   me,
   players,
   plans,
-  decisionScores,
+  decisions,
   onReplay,
 }: ResultsSceneProps) {
   const reduceMotion = useReducedMotion();
   const host = players.find((player) => player.isHost) ?? me;
+
+  const decisionScores = useMemo<Partial<Record<MissionId, number>>>(() => {
+    const scores: Partial<Record<MissionId, number>> = {};
+    for (const mission of MISSIONS) {
+      const state = decisions?.[mission.id];
+      if (state && typeof state.scoreAfter === 'number') {
+        scores[mission.id] = state.scoreAfter;
+      }
+    }
+    return scores;
+  }, [decisions]);
 
   const rows = useMemo(
     () =>

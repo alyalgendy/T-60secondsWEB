@@ -20,6 +20,8 @@ export { Modal } from './Modal';
 export type { ModalProps } from './Modal';
 export { Countdown } from './Countdown';
 export type { CountdownProps } from './Countdown';
+export { SceneErrorBoundary } from './ErrorBoundary';
+export type { SceneErrorBoundaryProps } from './ErrorBoundary';
 export {
   PlaceholderScene,
   LoadingScene,

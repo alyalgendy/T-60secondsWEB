@@ -139,13 +139,17 @@ export function useDecision({
             return undefined;
           }
 
+          const problemIds = Array.isArray(current.problemIds)
+            ? current.problemIds
+            : [];
           const problem = problems.find(
-            (item) => item.id === current.problemIds[current.index],
+            (item) => item.id === problemIds[current.index],
           );
           const option = problem?.options.find((item) => item.id === optionId);
           if (!problem || !option) return undefined;
 
-          const resourcesAfter = { ...current.resourcesAfter };
+          const picks = Array.isArray(current.picks) ? current.picks : [];
+          const resourcesAfter = { ...(current.resourcesAfter ?? {}) };
           for (const [key, delta] of Object.entries(option.effects)) {
             const resourceKey = key as ResourceKey;
             if (typeof delta !== 'number') continue;
@@ -155,12 +159,15 @@ export function useDecision({
             );
           }
 
+          const scoreAfter =
+            typeof current.scoreAfter === 'number' ? current.scoreAfter : 0;
+
           return {
             ...current,
             resourcesAfter,
-            scoreAfter: clamp(current.scoreAfter + option.scoreDelta, 0, 100),
+            scoreAfter: clamp(scoreAfter + option.scoreDelta, 0, 100),
             picks: [
-              ...current.picks,
+              ...picks,
               {
                 problemId: problem.id,
                 playerId: me.id,
@@ -189,7 +196,10 @@ export function useDecision({
         if (!current || current.status !== 'revealed') return undefined;
 
         const nextIndex = current.index + 1;
-        if (nextIndex >= current.problemIds.length) {
+        const problemIds = Array.isArray(current.problemIds)
+          ? current.problemIds
+          : [];
+        if (nextIndex >= problemIds.length) {
           return { ...current, status: 'debrief' };
         }
 
