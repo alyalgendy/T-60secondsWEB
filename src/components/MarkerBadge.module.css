@@ -1,0 +1,34 @@
+.slot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.info { color: var(--accent); }
+.attention { color: var(--warn); }
+.critical { color: var(--danger); }
+
+.pulse {
+  animation: markerPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes markerPulse {
+  50% { opacity: 0.45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse { animation: none; }
+}

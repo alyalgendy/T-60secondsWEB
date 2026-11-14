@@ -13,6 +13,8 @@ import {
   ResourceSlider,
   StatusPill,
 } from '../../shared/ui';
+import { MarkerSlot } from '../../components/MarkerBadge';
+import { getMoonMarkers } from '../../lib/markers';
 import { missionConfig as config } from './config';
 import styles from './MoonScene.module.css';
 
@@ -77,10 +79,15 @@ export default function MoonScene({
   const selectedCraft = config.crafts.find((craft) => craft.id === draft.craftId);
   const iAmReady = draft.readyPlayerIds.includes(me.id);
   const controlsDisabled = iAmReady;
-  const readyCount = players.filter((player) =>
+  const connected = players.filter((player) => player.connected);
+  const readyCount = connected.filter((player) =>
     draft.readyPlayerIds.includes(player.id),
   ).length;
-  const allReady = players.length > 0 && readyCount === players.length;
+  const allReady = connected.length > 0 && readyCount === connected.length;
+  const markers = useMemo(
+    () => getMoonMarkers({ config, draft, players, youId: me.id }),
+    [draft, players, me.id],
+  );
   const launchVisible = me.isHost && allReady;
   const canLaunch = launchVisible && launchBlockers.length === 0 && !launching;
   const lastEditor =
@@ -91,7 +98,7 @@ export default function MoonScene({
   const blockers: string[] = [];
   if (launchBlockers.length > 0) blockers.push(...launchBlockers);
   if (!allReady) {
-    const waiting = players.length - readyCount;
+    const waiting = connected.length - readyCount;
     blockers.push(
       `Waiting for ${waiting} crew ${waiting === 1 ? 'member' : 'members'} to lock in.`,
     );
@@ -168,6 +175,9 @@ export default function MoonScene({
           className={styles.brief}
           scroll
         >
+          <div id="moon-brief">
+            <MarkerSlot markers={markers} anchor="moon-brief" />
+          </div>
           <div className={styles.destination}>
             <span className={styles.planet} aria-hidden="true" />
             <div>
@@ -207,7 +217,7 @@ export default function MoonScene({
           bodyClassName={styles.builderBody}
           scroll
         >
-          <div className={styles.blockHead}>
+          <div id="moon-craft" className={styles.blockHead}>
             <span className={styles.sectionLabel}>01 · Choose a lander</span>
             {craftEdited && lastEditor ? (
               <span className={styles.editFlag}>
@@ -216,6 +226,7 @@ export default function MoonScene({
               </span>
             ) : null}
           </div>
+          <MarkerSlot markers={markers} anchor="moon-craft" />
 
           <fieldset className={styles.craftGrid} disabled={controlsDisabled}>
             <legend className={styles.srOnly}>Choose one lander</legend>
@@ -291,7 +302,7 @@ export default function MoonScene({
             })}
           </fieldset>
 
-          <div className={styles.blockHead}>
+          <div id="moon-resources" className={styles.blockHead}>
             <span className={styles.sectionLabel}>02 · Allocate resources</span>
             {editedKey && lastEditor ? (
               <span className={styles.editFlag}>
@@ -300,6 +311,7 @@ export default function MoonScene({
               </span>
             ) : null}
           </div>
+          <MarkerSlot markers={markers} anchor="moon-resources" />
 
           <div className={styles.sliders}>
             {config.needs.map((need) => (
@@ -336,6 +348,9 @@ export default function MoonScene({
           className={styles.status}
           scroll
         >
+          <div id="moon-status">
+            <MarkerSlot markers={markers} anchor="moon-status" />
+          </div>
           <GaugeBar
             label="Mass used"
             value={scorePreview.massUsed}
@@ -380,11 +395,14 @@ export default function MoonScene({
             ))}
           </div>
 
-          <ReadyBar
-            players={players}
-            readyPlayerIds={draft.readyPlayerIds}
-            meId={me.id}
-          />
+          <div id="moon-ready">
+            <ReadyBar
+              players={players}
+              readyPlayerIds={draft.readyPlayerIds}
+              meId={me.id}
+            />
+            <MarkerSlot markers={markers} anchor="moon-ready" />
+          </div>
 
           <div className={styles.launchBox}>
             <span className={styles.sectionLabel}>Launch check</span>
@@ -407,7 +425,8 @@ export default function MoonScene({
             )}
           </div>
 
-          <div className={styles.actionBar}>
+          <div id="moon-launch" className={styles.actionBar}>
+            <MarkerSlot markers={markers} anchor="moon-launch" />
             <div className={styles.actions}>
               {launchVisible ? (
                 <HudButton

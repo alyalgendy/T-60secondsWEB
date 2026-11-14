@@ -1,28 +1,29 @@
 import { cn } from "@/lib/cn";
 import type { Marker, MarkerSeverity } from "@/lib/markers";
 import type { AnchorId } from "@/lib/anchors";
+import styles from "./MarkerBadge.module.css";
 
 const TONE: Record<MarkerSeverity, string> = {
-  info: "border-crew/35 bg-crew/10 text-crew",
-  attention: "border-warn/40 bg-warn/10 text-warn",
-  critical: "border-alert/45 bg-alert/10 text-alert",
+  info: styles.info,
+  attention: styles.attention,
+  critical: styles.critical,
+};
+
+const GLYPH: Record<MarkerSeverity, string> = {
+  info: "●",
+  attention: "▲",
+  critical: "✕",
 };
 
 export function MarkerBadge({ marker }: { marker: Marker }) {
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider",
-        TONE[marker.severity],
-      )}
-    >
+    <span className={cn(styles.badge, TONE[marker.severity])}>
       <span
-        className={cn(
-          "size-1.5 rounded-full bg-current",
-          marker.severity !== "info" && "animate-pulse motion-reduce:animate-none",
-        )}
+        className={cn(marker.severity !== "info" && styles.pulse)}
         aria-hidden
-      />
+      >
+        {GLYPH[marker.severity]}
+      </span>
       {marker.label}
     </span>
   );
@@ -44,7 +45,7 @@ export function MarkerSlot({
   const list = markers.filter((marker) => marker.anchor === anchor);
   if (list.length === 0) return null;
   return (
-    <div className={cn("flex flex-wrap gap-1.5", className)}>
+    <div className={cn(styles.slot, className)}>
       {list.map((marker) => (
         <MarkerBadge key={marker.id} marker={marker} />
       ))}
