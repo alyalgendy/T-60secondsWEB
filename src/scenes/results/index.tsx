@@ -370,8 +370,9 @@ export default function ResultsScene({
             <span className={styles.sectionLabel}>Sources</span>
             <p className={styles.creditsText}>
               Mission facts are drawn from NASA and ESA sources cited in each simulation
-              debrief. T -60 seconds is a game; game units and scores are not real
-              engineering data.
+              debrief. The tracker is an original implementation inspired by NASA Mission
+              Viz; no upstream code or assets were reused. T -60 seconds is a game, not
+              real engineering data. NASA does not endorse this project.
             </p>
           </div>
         </HudPanel>

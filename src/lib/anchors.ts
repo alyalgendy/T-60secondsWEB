@@ -24,6 +24,35 @@ export const ANCHORS = [
   "moon-status",
   "moon-ready",
   "moon-launch",
+  // V2 placeholder phases
+  "v2-design",
+  "v2-mission",
+  // V2 design stages
+  "design-console",
+  "design-objectives",
+  "design-hangar",
+  "design-trade",
+  "design-blueprint",
+  "design-review",
+  "design-crew",
+  "design-timer",
+  "design-ready",
+  "design-window-picker",
+  // Capsule shell and onboarding
+  "capsule-warning",
+  "capsule-resources",
+  "capsule-tutorial-roles",
+  "capsule-tutorial-movement",
+  "capsule-tutorial-warnings",
+  // ISS flight
+  "mission-map",
+  "mission-response",
+  "mission-resource",
+  "mission-clock",
+  "mission-tracker",
+  "mission-debrief",
+  "mission-replay",
+  "campaign-ending",
 ] as const;
 
 export type StaticAnchorId = (typeof ANCHORS)[number];

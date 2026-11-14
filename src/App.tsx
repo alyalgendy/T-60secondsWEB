@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import LobbyScene from './scenes/lobby';
 import {
   ErrorScene,
@@ -40,6 +40,11 @@ import {
   type LazyScene,
 } from './sceneRegistry';
 import DevHarness from './shared/devHarness';
+import CapsuleDemo from './game/capsule/CapsuleDemo';
+import DesignScene from './game/design/DesignScene';
+import CampaignEnding from './game/campaign/CampaignEnding';
+const MissionScene = lazy(() => import('./game/mission/MissionScene'));
+const USE_GAME_V2 = import.meta.env.VITE_GAME_V2 !== '0';
 import type {
   DecisionProblem,
   FlowStep,
@@ -78,6 +83,33 @@ export default function App() {
   const mockParam = params.get('mock');
   const demoParam = params.get('demo');
   const sceneParam = params.get('scene');
+
+  if (demoParam === 'capsule') {
+    return <CapsuleDemo />;
+  }
+
+  if (demoParam === 'design') {
+    const count = clamp(Number.parseInt(params.get('players') ?? '1', 10) || 1, 1, 4);
+    const demoPlayers: Player[] = Array.from({ length: count }, (_, index) => ({
+      id: `design-demo-${index + 1}`,
+      name: `Crew ${index + 1}`,
+      color: ['#78d8ff', '#ffd477', '#ae9bff', '#77e2ae'][index] ?? '#78d8ff',
+      joinOrder: index,
+      isHost: index === 0,
+      connected: true,
+    }));
+    return (
+      <DesignScene
+        roomCode="DESGN"
+        missionId="iss"
+        me={demoPlayers[0]!}
+        players={demoPlayers}
+        onContinue={() => undefined}
+        mock
+        allowSeatSwitch
+      />
+    );
+  }
 
   if (mockParam || demoParam) {
     const count = mockParam ? clamp(Number.parseInt(mockParam, 10) || 1, 1, 4) : 1;
@@ -356,6 +388,44 @@ function FlowRouter({ roomCode, me, players, step, setStep }: FlowRouterProps) {
           onContinue={onContinue}
         />
       </Suspense>
+    );
+  }
+
+  if (USE_GAME_V2 && mission) {
+    if (isPlanningStep(step)) {
+      return (
+        <DesignScene
+          roomCode={roomCode}
+          missionId={mission}
+          me={me}
+          players={players}
+          onContinue={() => setStep(getNextStep(step))}
+        />
+      );
+    }
+
+    if (isDecisionStep(step)) {
+      return (
+        <Suspense fallback={<LoadingScene roomCode={roomCode} me={me} players={players} />}>
+          <MissionScene
+            roomCode={roomCode}
+            missionId={mission}
+            me={me}
+            players={players}
+            onContinue={() => void setStep(getNextStep(step))}
+          />
+        </Suspense>
+      );
+    }
+  }
+
+  if (step === 'results' && USE_GAME_V2) {
+    return (
+      <CampaignEnding
+          roomCode={roomCode}
+          me={me}
+          players={players}
+      />
     );
   }
 

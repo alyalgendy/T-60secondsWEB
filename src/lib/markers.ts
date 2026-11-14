@@ -9,9 +9,11 @@ import {
   getMassBudget,
   getMassUsed,
 } from "@/shared/scoring";
-import type { AnchorId } from "./anchors";
+import type { AnchorId, StaticAnchorId } from "./anchors";
 import { isValidRoomCode } from "./room-code";
 import { MAX_PLAYERS, type RoomView } from "./types";
+import type { DesignState, MissionId, MissionState, Player, ResourceKey } from "@/shared/types";
+import { getReadinessGates } from "@/game/design/designLogic";
 
 /**
  * Markers are ALWAYS derived from state. Components must never invent their
@@ -233,4 +235,278 @@ export function getMoonMarkers(input: MoonMarkerInput): Marker[] {
   }
 
   return markers;
+}
+
+export function getV2Markers(
+  phase: "design" | "mission",
+  crewCount: number,
+): Marker[] {
+  const anchor: StaticAnchorId = phase === "design" ? "v2-design" : "v2-mission";
+  return [
+    {
+      id: `${phase}-crew-count`,
+      anchor,
+      kind: "state",
+      severity: "info",
+      label: `${crewCount} ${crewCount === 1 ? "crew member" : "crew members"} connected`,
+    },
+  ];
+}
+
+const DESIGN_STAGE_ANCHORS: Record<DesignState["stage"], StaticAnchorId> = {
+  concept: "design-objectives",
+  feasibility: "design-hangar",
+  trade: "design-trade",
+  "point-design": "design-blueprint",
+  review: "design-review",
+};
+
+export function getDesignMarkers(input: {
+  state: DesignState;
+  playerId: string;
+  players: readonly Player[];
+  now: number;
+  missionId?: MissionId;
+}): Marker[] {
+  const { state, playerId, players, now, missionId = "iss" } = input;
+  const crew = players.filter((player) => player.connected);
+  const anchor = DESIGN_STAGE_ANCHORS[state.stage];
+  const markers: Marker[] = [];
+
+  if (state.stage === "review") {
+    const redGates = getReadinessGates(state, missionId).filter(
+      (gate) => gate.status === "red",
+    );
+    if (redGates.length > 0) {
+      markers.push({
+        id: "design-review-blocked",
+        anchor,
+        kind: "state",
+        severity: "critical",
+        label: "Readiness blocked",
+      });
+    } else if (!state.ready.includes(playerId)) {
+      markers.push({
+        id: "design-signoff",
+        anchor: "design-ready",
+        kind: "attention",
+        severity: "attention",
+        label: "Sign off",
+      });
+    }
+  } else {
+    const topic =
+      state.stage === "concept"
+        ? "objectives"
+        : state.stage === "feasibility"
+          ? state.launchVehicleId
+            ? "craft"
+            : "vehicle"
+          : null;
+    if (topic && !state.votes[topic]?.[playerId]) {
+      markers.push({
+        id: `design-vote-${topic}`,
+        anchor,
+        kind: "attention",
+        severity: "attention",
+        label: "Cast vote",
+      });
+    }
+    if (state.stage === "trade" && !state.modules.engine) {
+      markers.push({
+        id: "design-trade-start",
+        anchor,
+        kind: "attention",
+        severity: "attention",
+        label: "Choose systems",
+      });
+    }
+    if (
+      state.stage === "point-design" &&
+      !state.votes.window?.[playerId]
+    ) {
+      markers.push({
+        id: "design-window-vote",
+        anchor: "design-window-picker",
+        kind: "attention",
+        severity: "attention",
+        label: "Vote on launch window",
+      });
+    }
+  }
+
+  const ping = state.pings?.[playerId];
+  if (ping && now - ping.at < 6000) {
+    markers.push({
+      id: `design-ping-${ping.at}`,
+      anchor,
+      kind: "context",
+      severity: "info",
+      label: `${players.find((player) => player.id === ping.from)?.name ?? "Crew"}: ${ping.message}`,
+    });
+  }
+  if (crew.length > 0 && crew.every((player) => state.ready.includes(player.id))) {
+    markers.push({
+      id: "design-all-ready",
+      anchor: "design-ready",
+      kind: "state",
+      severity: "info",
+      label: "Crew ready",
+    });
+  }
+  return markers;
+}
+
+export function getMissionMarkers(input: {
+  state: MissionState;
+  playerId: string;
+  players: readonly Player[];
+  now: number;
+}): Marker[] {
+  const { state, playerId, players, now } = input;
+  const markers: Marker[] = [];
+  const activeEvents = state.events.filter(
+    (event) =>
+      event.status !== "resolved" &&
+      event.status !== "failed" &&
+      event.startsAt <= now,
+  );
+
+  if (state.outcome === "running" && state.progress >= 0.875) {
+      markers.push({
+        id: "mission-clock-low",
+        anchor: "mission-clock",
+        kind: "state",
+        severity: "attention",
+        label: "Clock low",
+      });
+  }
+  if (state.outcome === "running") {
+    markers.push({
+      id: "mission-trajectory-progress",
+      anchor: "mission-tracker",
+      kind: "state",
+      severity: "info",
+      label: `${Math.round(state.progress * 100)}% mission progress`,
+    });
+  }
+
+  if (activeEvents.some((event) => event.status === "pending")) {
+    markers.push({
+      id: "mission-response-needed",
+      anchor: "mission-response",
+      kind: "attention",
+      severity: "attention",
+      label: "Response needed",
+    });
+  }
+  if (
+    activeEvents.some(
+      (event) =>
+        event.status === "diagnosed" &&
+        event.requiresAssistSystem &&
+        players.filter((player) => player.connected).length > 1 &&
+        !Object.values(state.players).some(
+          (missionPlayer) =>
+            missionPlayer.repairing?.eventId === event.id &&
+            missionPlayer.repairing.mode === "assist",
+        ),
+    )
+  ) {
+    markers.push({
+      id: "mission-crew-assist",
+      anchor: "mission-map",
+      kind: "attention",
+      severity: "attention",
+      label: "Crew assist",
+    });
+  }
+  if (
+    activeEvents.some(
+      (event) =>
+        event.status === "diagnosed" &&
+        event.requiresSpare &&
+        !event.spareDelivered,
+    )
+  ) {
+    markers.push({
+      id: "mission-spare-needed",
+      anchor: "mission-map",
+      kind: "state",
+      severity: "attention",
+      label: "Spare needed",
+    });
+  }
+
+  const lowResources = (Object.keys(state.resources) as ResourceKey[]).filter(
+    (resource) => {
+      const maximum = state.resourceMax?.[resource] ?? 0;
+      return (
+        maximum > 0 &&
+        state.resources[resource] > 0 &&
+        state.resources[resource] / maximum <= 0.25
+      );
+    },
+  );
+  for (const resource of lowResources) {
+    markers.push({
+      id: `mission-resource-${resource}`,
+      anchor: "mission-resource",
+      kind: "state",
+      severity: "critical",
+      label: `${resource[0]!.toUpperCase()}${resource.slice(1)} low`,
+    });
+  }
+
+  if (state.outcome === "won") {
+    markers.push({
+      id: "mission-won",
+      anchor: "mission-debrief",
+      kind: "state",
+      severity: "info",
+      label: "Mission won",
+    });
+  } else if (state.outcome === "lost") {
+    markers.push({
+      id: `mission-lost-${playerId}`,
+      anchor: "mission-debrief",
+      kind: "state",
+      severity: "critical",
+      label: "Mission lost",
+    });
+  }
+  if (state.outcome !== "running" && state.events.length > 0) {
+    markers.push({
+      id: "mission-replay-events",
+      anchor: "mission-replay",
+      kind: "attention",
+      severity: "info",
+      label: "Review event timeline",
+    });
+  }
+  return markers;
+}
+
+export function getCampaignMarkers(
+  outcomes: Partial<Record<MissionId, MissionState | null>>,
+): Marker[] {
+  const missionIds: readonly MissionId[] = ["iss", "moon", "mars"];
+  const complete = missionIds.every((id) => outcomes[id] !== undefined);
+  if (!complete) {
+    return [{
+      id: "campaign-records-pending",
+      anchor: "campaign-ending",
+      kind: "context",
+      severity: "info",
+      label: "Receiving flight records",
+    }];
+  }
+  const delivered = missionIds.every((id) => outcomes[id]?.outcome === "won");
+  return [{
+    id: delivered ? "campaign-cure-delivered" : "campaign-not-delivered",
+    anchor: "campaign-ending",
+    kind: "state",
+    severity: delivered ? "info" : "critical",
+    label: delivered ? "Cure delivered" : "Campaign incomplete",
+  }];
 }
