@@ -45,7 +45,7 @@ export function useRoom(
     if (!database) {
       setLoadedKey(key);
       setError(
-        'Firebase is not configured. Copy .env.example to .env.local and add your project values.',
+        'Firebase is not configured. Set VITE_FIREBASE_DATABASE_URL and VITE_FIREBASE_PROJECT_ID, or check src/shared/firebase.ts.',
       );
       return;
     }
