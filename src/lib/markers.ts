@@ -1,10 +1,14 @@
 import {
-  checkLaunch,
   scorePlan,
   type MissionConfig,
   type PlanDraft,
   type PlanningPlayer,
 } from "@/game/planning";
+import {
+  getLaunchBlockers,
+  getMassBudget,
+  getMassUsed,
+} from "@/shared/scoring";
 import type { AnchorId } from "./anchors";
 import { isValidRoomCode } from "./room-code";
 import { MAX_PLAYERS, type RoomView } from "./types";
@@ -146,7 +150,8 @@ export interface MoonMarkerInput {
 export function getMoonMarkers(input: MoonMarkerInput): Marker[] {
   const markers: Marker[] = [];
   const score = scorePlan(input.config, input.draft);
-  const launch = checkLaunch(input.config, input.draft);
+  // Same gate as the Launch button, so markers never clear a blocked plan.
+  const launch = { ok: getLaunchBlockers(input.config, input.draft).length === 0 };
   const crew = input.players.filter((player) => player.connected);
   const you = input.players.find((player) => player.id === input.youId);
   const ready = new Set(input.draft.readyPlayerIds);
@@ -176,7 +181,10 @@ export function getMoonMarkers(input: MoonMarkerInput): Marker[] {
     });
   }
 
-  if (score.massUsed > score.massBudget) {
+  if (
+    getMassUsed(input.config, input.draft.resources) >
+    getMassBudget(input.config, input.draft.craftId)
+  ) {
     markers.push({
       id: "moon-over-mass",
       anchor: "moon-status",
