@@ -81,6 +81,12 @@ host-authored; clients estimate the displayed event clock between host updates.
   the design without Firebase.
 - Timer expiry completes a fallback design, marks it rushed, and launches from
   the host seat. Under-timeout review gates still block normal launch.
+- During review, unanimous crew sign-off launches immediately when every gate
+  is clear, without waiting for the five-minute timer to expire.
+- The design flow has a skippable/replayable stage walkthrough, and the
+  planning console uses an expanded viewport with wider, denser layouts to
+  minimize scrolling on desktop.
+- The lobby's solo demo link opens the V2 ISS design and flight demo.
 - `src/game/missionViz/` provides a lazy-loaded Three.js orrery, compact ISS
   flight tracker, full-screen launch-window picker, and debrief replay with
   pending/resolved/failed event markers. The trajectory fixtures in

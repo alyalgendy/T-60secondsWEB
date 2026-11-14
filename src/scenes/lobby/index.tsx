@@ -418,7 +418,10 @@ export default function LobbyScene({
             {!joinOnly ? (
               <div className={styles.demoCta}>
                 <span className={styles.demoTitle}>Want to explore before inviting a crew?</span>
-                <a className={styles.demoLink} href={`${import.meta.env.BASE_URL}?demo=1`}>
+                <a
+                  className={styles.demoLink}
+                  href={`${import.meta.env.BASE_URL}?demo=design&players=1`}
+                >
                   Play a solo demo
                 </a>
                 <span className={styles.demoNote}>

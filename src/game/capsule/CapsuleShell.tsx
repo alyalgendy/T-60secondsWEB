@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { MarkerSlot } from '../../components/MarkerBadge';
+import type { TutorialStep } from '../../lib/tutorial';
 import type { MissionId, SystemId } from '../../shared/types';
 import { getCapsuleMarkers } from './warnings';
 import CapsuleOnboarding from './CapsuleOnboarding';
@@ -33,18 +34,18 @@ const SYSTEM_GLYPHS: Record<SystemId, string> = {
   shield: '⬡',
 };
 
-function hasCompletedOnboarding(): boolean {
+function hasCompletedOnboarding(storageKey: string): boolean {
   if (typeof window === 'undefined') return false;
   try {
-    return window.localStorage.getItem('t60.capsule.onboarding.v1') === 'done';
+    return window.localStorage.getItem(storageKey) === 'done';
   } catch {
     return false;
   }
 }
 
-function rememberOnboarding(): void {
+function rememberOnboarding(storageKey: string): void {
   try {
-    window.localStorage.setItem('t60.capsule.onboarding.v1', 'done');
+    window.localStorage.setItem(storageKey, 'done');
   } catch {
     // The guide still works for this visit when storage is unavailable.
   }
@@ -124,6 +125,9 @@ interface CapsuleInteriorProps {
   resources: CapsuleResources;
   showOnboarding: boolean;
   compactWindow: boolean;
+  expandedConsole: boolean;
+  onboardingSteps?: readonly TutorialStep[];
+  onboardingStorageKey: string;
   children: ReactNode;
 }
 
@@ -133,12 +137,15 @@ function CapsuleInterior({
   resources,
   showOnboarding,
   compactWindow,
+  expandedConsole,
+  onboardingSteps,
+  onboardingStorageKey,
   children,
 }: CapsuleInteriorProps) {
   const { activeWarning, muted, toggleMute } = useWarnings();
   const [now, setNow] = useState(Date.now);
   const [onboardingOpen, setOnboardingOpen] = useState(
-    () => showOnboarding && !hasCompletedOnboarding(),
+    () => showOnboarding && !hasCompletedOnboarding(onboardingStorageKey),
   );
   const clampedProgress = Math.min(1, Math.max(0, progress));
   const planetScale = 0.82 + clampedProgress * 0.34;
@@ -166,19 +173,19 @@ function CapsuleInterior({
   }, [activeWarning?.deadlineAt]);
 
   useEffect(() => {
-    if (showOnboarding && !hasCompletedOnboarding()) {
+    if (showOnboarding && !hasCompletedOnboarding(onboardingStorageKey)) {
       setOnboardingOpen(true);
     }
-  }, [showOnboarding]);
+  }, [onboardingStorageKey, showOnboarding]);
 
   const finishOnboarding = () => {
-    rememberOnboarding();
+    rememberOnboarding(onboardingStorageKey);
     setOnboardingOpen(false);
   };
 
   return (
     <main
-      className={`${styles.shell} ${compactWindow ? styles.shellCompact : ''}`}
+      className={`${styles.shell} ${compactWindow ? styles.shellCompact : ''} ${expandedConsole ? styles.shellExpandedConsole : ''}`}
       data-level={activeWarning?.level ?? 'none'}
       data-effect={activeWarning?.effect ?? 'none'}
     >
@@ -281,7 +288,10 @@ function CapsuleInterior({
         </div>
       </section>
       {onboardingOpen && (
-        <CapsuleOnboarding onComplete={finishOnboarding} />
+        <CapsuleOnboarding
+          onComplete={finishOnboarding}
+          {...(onboardingSteps ? { steps: onboardingSteps } : {})}
+        />
       )}
     </main>
   );
@@ -293,6 +303,9 @@ export interface CapsuleShellProps {
   resources?: CapsuleResources;
   showOnboarding?: boolean;
   compactWindow?: boolean;
+  expandedConsole?: boolean;
+  onboardingSteps?: readonly TutorialStep[];
+  onboardingStorageKey?: string;
   children: ReactNode;
 }
 
@@ -302,6 +315,9 @@ export function CapsuleShell({
   resources: providedResources = {},
   showOnboarding = false,
   compactWindow = false,
+  expandedConsole = false,
+  onboardingSteps,
+  onboardingStorageKey = 't60.capsule.onboarding.v1',
   children,
 }: CapsuleShellProps) {
   const resources: CapsuleResources = {
@@ -317,6 +333,9 @@ export function CapsuleShell({
         resources={resources}
         showOnboarding={showOnboarding}
         compactWindow={compactWindow}
+        expandedConsole={expandedConsole}
+        onboardingSteps={onboardingSteps}
+        onboardingStorageKey={onboardingStorageKey}
       >
         {children}
       </CapsuleInterior>

@@ -1,20 +1,23 @@
 import { useState } from 'react';
 import { MarkerSlot } from '../../components/MarkerBadge';
 import { TUTORIAL_STEPS } from '../../lib/tutorial';
+import type { TutorialStep } from '../../lib/tutorial';
 import { getCapsuleMarkers } from './warnings';
 import styles from './CapsuleShell.module.css';
 
-const STEPS = TUTORIAL_STEPS.filter(
+const CAPSULE_STEPS = TUTORIAL_STEPS.filter(
   (step) => step.phase === 'capsule-onboarding',
 );
 
 export default function CapsuleOnboarding({
   onComplete,
+  steps = CAPSULE_STEPS,
 }: {
   onComplete: () => void;
+  steps?: readonly TutorialStep[];
 }) {
   const [index, setIndex] = useState(0);
-  const step = STEPS[index];
+  const step = steps[index];
   if (!step) return null;
 
   const markers = getCapsuleMarkers({
@@ -23,12 +26,12 @@ export default function CapsuleOnboarding({
     tutorialStep: {
       anchor: step.anchor,
       index: index + 1,
-      total: STEPS.length,
+      total: steps.length,
     },
   });
 
   const next = () => {
-    if (index + 1 >= STEPS.length) {
+    if (index + 1 >= steps.length) {
       onComplete();
     } else {
       setIndex((current) => current + 1);
@@ -60,8 +63,8 @@ export default function CapsuleOnboarding({
           {step.body}
         </p>
         <footer className={styles.onboardingFooter}>
-          <div className={styles.progressDots} aria-label={`Step ${index + 1} of ${STEPS.length}`}>
-            {STEPS.map((item, stepIndex) => (
+          <div className={styles.progressDots} aria-label={`Step ${index + 1} of ${steps.length}`}>
+            {steps.map((item, stepIndex) => (
               <span
                 className={styles.progressDot}
                 data-current={stepIndex === index}
@@ -83,7 +86,7 @@ export default function CapsuleOnboarding({
               type="button"
               onClick={next}
             >
-              {index + 1 === STEPS.length ? 'Finish' : 'Next'}
+              {index + 1 === steps.length ? 'Finish' : 'Next'}
             </button>
           </div>
         </footer>

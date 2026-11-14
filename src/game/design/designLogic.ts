@@ -267,6 +267,18 @@ export function canLaunch(
   );
 }
 
+export function canLaunchEarly(
+  state: DesignState,
+  allReady: boolean,
+  missionId: MissionId = 'iss',
+): boolean {
+  return (
+    state.stage === 'review' &&
+    allReady &&
+    canLaunch(state, missionId)
+  );
+}
+
 export function getSegmentChecklist(
   state: DesignState,
   missionId: MissionId = 'iss',
