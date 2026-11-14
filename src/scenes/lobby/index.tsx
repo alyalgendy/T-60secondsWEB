@@ -401,6 +401,18 @@ export default function LobbyScene({
             <p className={styles.hint}>
               No account needed. The host shares a 4-character room code.
             </p>
+
+            {!joinOnly ? (
+              <div className={styles.demoCta}>
+                <span className={styles.demoTitle}>Want to explore before inviting a crew?</span>
+                <a className={styles.demoLink} href={`${import.meta.env.BASE_URL}?demo=1`}>
+                  Play a solo demo
+                </a>
+                <span className={styles.demoNote}>
+                  No room or account needed. Progress is not saved.
+                </span>
+              </div>
+            ) : null}
           </form>
         </HudPanel>
       </div>

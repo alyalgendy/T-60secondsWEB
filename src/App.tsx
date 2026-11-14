@@ -76,12 +76,24 @@ function readPlayerId(roomCode: string | null): string | null {
 export default function App() {
   const params = new URLSearchParams(window.location.search);
   const mockParam = params.get('mock');
+  const demoParam = params.get('demo');
   const sceneParam = params.get('scene');
 
-  if (mockParam) {
-    const count = clamp(Number.parseInt(mockParam, 10) || 1, 1, 4);
-    const initialStep: FlowStep = isFlowStep(sceneParam) ? sceneParam : 'lobby';
-    return <DevHarness initialStep={initialStep} playerCount={count} />;
+  if (mockParam || demoParam) {
+    const count = mockParam ? clamp(Number.parseInt(mockParam, 10) || 1, 1, 4) : 1;
+    const initialStep: FlowStep =
+      mockParam && isFlowStep(sceneParam)
+        ? sceneParam
+        : demoParam
+          ? 'cutscene-intro'
+          : 'lobby';
+    return (
+      <DevHarness
+        initialStep={initialStep}
+        playerCount={count}
+        showDebugControls={Boolean(mockParam)}
+      />
+    );
   }
 
   return <RoomApp />;

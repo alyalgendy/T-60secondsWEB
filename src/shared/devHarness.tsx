@@ -36,6 +36,7 @@ import styles from './devHarness.module.css';
 export interface DevHarnessProps {
   initialStep: FlowStep;
   playerCount: number;
+  showDebugControls: boolean;
 }
 
 const MOCK_NAMES = ['You', 'Nova', 'Kai', 'Rhea'] as const;
@@ -62,6 +63,7 @@ function emptyScores(): Record<MissionId, number | null> {
 export default function DevHarness({
   initialStep,
   playerCount,
+  showDebugControls,
 }: DevHarnessProps) {
   const players = useMemo(() => makeMockPlayers(playerCount), [playerCount]);
   const host = players[0] as Player;
@@ -256,7 +258,7 @@ export default function DevHarness({
     setStep(getNextStep(step));
   }, [step]);
 
-  const base = { roomCode: 'MOCK', me, players };
+  const base = { roomCode: showDebugControls ? 'MOCK' : '', me, players };
   const decisionPlan = mission ? plans[mission] : undefined;
 
   let content: React.ReactNode;
@@ -390,26 +392,35 @@ export default function DevHarness({
   return (
     <>
       {content}
-      <div className={styles.bar}>
-        <span className={styles.badge}>Mock · {playerCount}P</span>
-        <label className={styles.selectLabel}>
-          Scene
-          <select
-            className={styles.select}
-            value={step}
-            onChange={(event) => {
-              const next = event.currentTarget.value;
-              if (isFlowStep(next)) setStep(next);
-            }}
-          >
-            {FLOW_STEPS.map((flowStep) => (
-              <option key={flowStep} value={flowStep}>
-                {STEP_LABELS[flowStep]}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+      {showDebugControls ? (
+        <div className={styles.bar}>
+          <span className={styles.badge}>Mock · {playerCount}P</span>
+          <label className={styles.selectLabel}>
+            Scene
+            <select
+              className={styles.select}
+              value={step}
+              onChange={(event) => {
+                const next = event.currentTarget.value;
+                if (isFlowStep(next)) setStep(next);
+              }}
+            >
+              {FLOW_STEPS.map((flowStep) => (
+                <option key={flowStep} value={flowStep}>
+                  {STEP_LABELS[flowStep]}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      ) : (
+        <div className={`${styles.bar} ${styles.demoBar}`}>
+          <span className={styles.demoMessage}>Solo demo · progress is not saved</span>
+          <a className={styles.exitDemo} href={import.meta.env.BASE_URL}>
+            Exit demo
+          </a>
+        </div>
+      )}
     </>
   );
 }

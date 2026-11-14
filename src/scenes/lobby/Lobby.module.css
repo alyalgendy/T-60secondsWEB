@@ -208,6 +208,45 @@
   color: var(--text-dim);
 }
 
+.demoCta {
+  display: grid;
+  gap: 4px;
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid rgba(79, 209, 255, 0.18);
+  border-radius: var(--radius);
+  background: rgba(79, 209, 255, 0.04);
+}
+
+.demoTitle {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.demoLink {
+  justify-self: start;
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.demoLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.demoNote {
+  font-family: var(--font-body);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
 /* ---------------- in-room ---------------- */
 
 .room {
