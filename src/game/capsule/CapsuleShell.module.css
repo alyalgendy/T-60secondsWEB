@@ -22,8 +22,18 @@
   padding: 0.45rem 1rem;
 }
 
+.shellExpandedConsole .viewport {
+  flex-basis: clamp(5.25rem, 10vh, 8rem);
+  min-height: 5.25rem;
+  padding: 0.2rem 0.6rem;
+}
+
 .shellCompact .windowFrame {
   min-height: 11rem;
+}
+
+.shellExpandedConsole.shellCompact .windowFrame {
+  min-height: 4.75rem;
 }
 
 .shellCompact .consoleArea {
@@ -762,6 +772,18 @@
 
   .beacon {
     right: 14%;
+  }
+}
+
+@media (min-width: 620px) and (max-height: 820px) {
+  .shellExpandedConsole .viewport {
+    flex-basis: 4rem;
+    min-height: 4rem;
+    padding: 0.15rem 0.5rem;
+  }
+
+  .shellExpandedConsole.shellCompact .windowFrame {
+    min-height: 3.75rem;
   }
 }
 

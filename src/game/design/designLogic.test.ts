@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { DesignState, Player } from '../../shared/types';
 import {
   canLaunch,
+  canLaunchEarly,
   createInitialDesignState,
   getCargoCells,
   getReadinessGates,
@@ -118,5 +119,20 @@ describe('ISS design support', () => {
     const design = reviewDesign();
     expect(getReadinessGates(design).every((gate) => gate.status !== 'red')).toBe(true);
     expect(canLaunch(design)).toBe(true);
+  });
+
+  it('starts early only when the full crew is ready in a clear review', () => {
+    const design = reviewDesign();
+    expect(canLaunchEarly(design, true)).toBe(true);
+    expect(canLaunchEarly(design, false)).toBe(false);
+    expect(
+      canLaunchEarly({ ...design, stage: 'point-design' }, true),
+    ).toBe(false);
+    expect(
+      canLaunchEarly(
+        { ...design, cargo: { ...design.cargo, oxygen: 0 } },
+        true,
+      ),
+    ).toBe(false);
   });
 });

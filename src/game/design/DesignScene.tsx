@@ -12,7 +12,7 @@ import { MarkerSlot } from '../../components/MarkerBadge';
 import { CapsuleShell } from '../capsule';
 import { getMissionV2Content } from '../../content/missions-v2';
 import { getDesignMarkers } from '../../lib/markers';
-import { TUTORIAL_STEPS } from '../../lib/tutorial';
+import { DESIGN_TUTORIAL_STEPS, TUTORIAL_STEPS } from '../../lib/tutorial';
 import { useDesign } from '../../shared/hooks/useDesign';
 import type {
   DesignPingMessage,
@@ -26,6 +26,7 @@ import type {
 import {
   calculateDesignStats,
   canLaunch,
+  canLaunchEarly,
   createInitialDesignState,
   DESIGN_SECONDS,
   DESIGN_SYSTEMS,
@@ -317,6 +318,19 @@ export default function DesignScene({
   }, [loading, rolePlayers, state, update]);
 
   useEffect(() => {
+    if (
+      !state ||
+      !me.isHost ||
+      !canLaunchEarly(state, allReady, missionId) ||
+      autoLaunchFired.current
+    ) {
+      return;
+    }
+    autoLaunchFired.current = true;
+    void Promise.resolve(onContinue());
+  }, [allReady, me.isHost, missionId, onContinue, state]);
+
+  useEffect(() => {
     if (!state || !expired || state.rushed) return;
     changeState((current) => initialEmergencyDesign(current, content));
   }, [changeState, content, expired, state]);
@@ -537,7 +551,14 @@ export default function DesignScene({
 
   if (loading || !state) {
     return (
-      <CapsuleShell missionId={missionId} showOnboarding compactWindow>
+      <CapsuleShell
+        missionId={missionId}
+        showOnboarding
+        compactWindow
+        expandedConsole
+        onboardingSteps={DESIGN_TUTORIAL_STEPS}
+        onboardingStorageKey="t60.design.tutorial.v1"
+      >
         <div className={styles.loading}>SYNCING DESIGN</div>
       </CapsuleShell>
     );
@@ -551,7 +572,15 @@ export default function DesignScene({
     );
 
   return (
-    <CapsuleShell missionId={missionId} progress={0.14} showOnboarding compactWindow>
+    <CapsuleShell
+      missionId={missionId}
+      progress={0.14}
+      showOnboarding
+      compactWindow
+      expandedConsole
+      onboardingSteps={DESIGN_TUTORIAL_STEPS}
+      onboardingStorageKey="t60.design.tutorial.v1"
+    >
       <div className={styles.designConsole} aria-label={`${content.name} mission design`}>
         <header className={styles.topLine}>
           <div className={styles.stages} aria-label="Design stages">
@@ -995,6 +1024,7 @@ export default function DesignScene({
                 </p>
               )}
 
+              <div className={styles.pointSupportGrid}>
               <div className={styles.cargoSection}>
                 <div className={styles.sectionTitle}>
                   <strong>Cargo bay</strong>
@@ -1079,6 +1109,7 @@ export default function DesignScene({
                     Lock window
                   </button>
                 </div>
+              </div>
               </div>
 
               <div className={styles.actionRow}>
@@ -1166,7 +1197,11 @@ export default function DesignScene({
                   disabled={!me.isHost || !allReady || (!canLaunch(state, missionId) && !(state.rushed && expired))}
                   onClick={launch}
                 >
-                  {state.rushed && expired ? 'Launch anyway' : 'Launch'}
+                  {state.rushed && expired
+                    ? 'Launch anyway'
+                    : expired
+                      ? 'Launch'
+                      : 'Start mission'}
                 </button>
               </div>
               <MarkerSlot markers={markers} anchor="design-ready" />

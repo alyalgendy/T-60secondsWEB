@@ -99,7 +99,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     phase: "design",
     anchor: "design-objectives",
     title: "Choose goals",
-    body: "Choose two goals, signal trade-offs with crew pings, and beat the five-minute clock.",
+    body: "Select exactly two objective cards and vote; their needs shape every later choice.",
     visual: "◇",
   },
   {
@@ -107,7 +107,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     phase: "design",
     anchor: "design-hangar",
     title: "Pick the vehicle",
-    body: "Vote for a compatible vehicle and craft; the Mission Lead breaks ties.",
+    body: "Vote for a launch vehicle, then a spacecraft. The Mission Lead breaks ties.",
     visual: "▲",
   },
   {
@@ -115,7 +115,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     phase: "design",
     anchor: "design-trade",
     title: "Compare systems",
-    body: "Each role owns two systems; request a swap and get agreement first. Choices trade mass, power, and cost.",
+    body: "Choose an option for each system; every pick changes shared mass, power, cost, risk, or reliability.",
     visual: "⌘",
   },
   {
@@ -123,7 +123,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     phase: "design",
     anchor: "design-blueprint",
     title: "Build the craft",
-    body: "Install each chosen module, pack cargo cells, and select a launch window.",
+    body: "Install all six modules, pack supplies into cargo cells, then choose a launch window.",
     visual: "⬡",
   },
   {
@@ -131,7 +131,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     phase: "design",
     anchor: "design-window-picker",
     title: "Compare trajectories",
-    body: "Vote on a launch window; shorter trips use more fuel, while longer trips change mission time.",
+    body: "Vote on a launch window; it changes fuel use and travel time.",
     visual: "◉",
   },
   {
@@ -139,7 +139,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     phase: "design",
     anchor: "design-review",
     title: "Review together",
-    body: "Clear every red gate, then all crew sign off before the host launches.",
+    body: "Clear every red gate, then all crew sign off. The host launches early when everyone is ready.",
     visual: "✓",
   },
   {
@@ -326,6 +326,10 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     visual: "△",
   },
 ];
+
+export const DESIGN_TUTORIAL_STEPS = TUTORIAL_STEPS.filter(
+  (step) => step.phase === "design",
+);
 
 const SEEN_KEY = "t60.tutorial.seen.v1";
 
