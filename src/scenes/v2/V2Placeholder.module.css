@@ -1,0 +1,83 @@
+.console {
+  width: min(55rem, 100%);
+  margin: 0 auto;
+  padding: 0.9rem clamp(0.7rem, 2vw, 1.4rem);
+  border: 1px solid rgba(98, 202, 255, 0.24);
+  border-radius: 0.55rem;
+  background: rgba(9, 24, 42, 0.58);
+}
+
+.eyebrow {
+  color: #71d7ff;
+  font-size: 0.76rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0.2rem 0;
+  font: 1.3rem var(--font-display);
+}
+
+.description {
+  margin: 0.3rem 0 0.7rem;
+  color: #b7c8db;
+  font-family: var(--font-body, 'Rajdhani', sans-serif);
+  font-size: 1.15rem;
+}
+
+.crew {
+  margin: 0.7rem 0 0;
+  color: #a4c4d9;
+  font-family: var(--font-body, 'Rajdhani', sans-serif);
+}
+
+.guide {
+  margin: 0.5rem 0;
+  padding: 0.65rem;
+  border: 1px solid rgba(113, 215, 255, 0.28);
+  border-radius: 0.6rem;
+  color: #c9dbea;
+  font-family: var(--font-body, 'Rajdhani', sans-serif);
+  text-align: left;
+}
+
+.guideTitle {
+  margin: 0 0 0.25rem;
+  color: #71d7ff;
+}
+
+.guideBody {
+  margin: 0 0 0.5rem;
+}
+
+.guideToggle {
+  padding: 0;
+  border: 0;
+  color: #71d7ff;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
+}
+
+.continue {
+  margin-top: 0.6rem;
+  padding: 0.8rem 1.2rem;
+  border: 1px solid #71d7ff;
+  border-radius: 0.45rem;
+  color: #06121e;
+  background: #71d7ff;
+  cursor: pointer;
+  font: inherit;
+}
+
+.continue:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+.guideToggle:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}

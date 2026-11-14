@@ -1,5 +1,26 @@
 export type MissionId = 'iss' | 'moon' | 'mars';
 
+export type RoleId =
+  | 'lead'
+  | 'power-thermal'
+  | 'propulsion-structures'
+  | 'comms-avionics';
+
+export type SystemId =
+  | 'engine'
+  | 'solar'
+  | 'thermal'
+  | 'comms'
+  | 'navigation'
+  | 'shield';
+
+export type DesignStage =
+  | 'concept'
+  | 'feasibility'
+  | 'trade'
+  | 'point-design'
+  | 'review';
+
 export type ResourceKey =
   | 'fuel'
   | 'power'
@@ -8,6 +29,133 @@ export type ResourceKey =
   | 'food'
   | 'shielding'
   | 'spares';
+
+export type DesignPingMessage = 'power' | 'mass' | 'budget' | 'good';
+
+export interface SubsystemOption {
+  id: string;
+  system: SystemId;
+  label: string;
+  icon: string;
+  mass: number;
+  power: number;
+  cost: number;
+  risk: number;
+  reliability: number;
+  redundant?: boolean;
+  incompatibleWith?: { optionId: string; reason: string }[];
+  source?: Source;
+}
+
+export interface DesignState {
+  stage: DesignStage;
+  endsAt: number;
+  roleAssignments?: Record<RoleId, string>;
+  roleSwapRequest?: {
+    fromPlayerId: string;
+    toPlayerId: string;
+    fromRole: RoleId;
+    toRole: RoleId;
+  };
+  objectiveIds: string[];
+  launchVehicleId: string | null;
+  craftId: string | null;
+  modules: Partial<Record<SystemId, string>>;
+  installedModules?: Partial<Record<SystemId, string>>;
+  cargo: Record<ResourceKey, number>;
+  launchWindowId: string | null;
+  votes: Record<string, Record<string, string>>;
+  ready: string[];
+  pings?: Record<
+    string,
+    { from: string; message: DesignPingMessage; at: number }
+  >;
+  rushed?: boolean;
+}
+
+export interface MissionEvent {
+  id: string;
+  system: SystemId;
+  level: 'caution' | 'warning' | 'critical';
+  startsAt: number;
+  deadlineAt: number;
+  diagnosedBy?: string;
+  repairedBy?: string[];
+  resolvedAt?: number;
+  wrongDiagnoses?: number;
+  requiresSpare?: boolean;
+  spareDelivered?: boolean;
+  requiresAssistSystem?: SystemId;
+  repairRequired?: number;
+  repairProgress?: number;
+  status: 'pending' | 'diagnosed' | 'resolved' | 'failed';
+  windowEffect:
+    | 'flare'
+    | 'micrometeoroid'
+    | 'static'
+    | 'thermal'
+    | 'engine'
+    | 'powerdip';
+}
+
+export interface MissionPlayerState {
+  x: number;
+  y: number;
+  carrying: string | null;
+  repairing?: {
+    eventId: string;
+    mode: 'repair' | 'assist';
+    station: SystemId;
+  };
+}
+
+export interface MissionState {
+  attempt: number;
+  startedAt: number;
+  lastTickAt?: number;
+  seed?: number;
+  risk?: number;
+  missionDays?: number;
+  fuelBurnMultiplier?: number;
+  resourceDrainMultiplier?: number;
+  progress: number;
+  systems: Record<
+    SystemId,
+    { health: number; status: 'ok' | 'degraded' | 'failed' }
+  >;
+  resources: Record<ResourceKey, number>;
+  resourceMax?: Record<ResourceKey, number>;
+  players: Record<string, MissionPlayerState>;
+  events: MissionEvent[];
+  processedIntentIds?: string[];
+  outcome: 'running' | 'won' | 'lost';
+  lostReason?: string;
+}
+
+export type MissionIntentAction =
+  | { kind: 'diagnose'; eventId: string; responseId: string }
+  | { kind: 'pickup-spare' }
+  | { kind: 'deliver-spare'; eventId: string }
+  | {
+      kind: 'repair-start';
+      eventId: string;
+      mode: 'repair' | 'assist';
+      station: SystemId;
+    }
+  | { kind: 'repair-stop' };
+
+export interface MissionIntent {
+  id: string;
+  playerId: string;
+  attempt: number;
+  createdAt: number;
+  action: MissionIntentAction;
+}
+
+export interface MissionPosition {
+  x: number;
+  y: number;
+}
 
 export type FlowStep =
   | 'lobby'

@@ -371,7 +371,9 @@ export default function ResultsScene({
             <p className={styles.creditsText}>
               Mission facts are drawn from NASA and ESA sources cited in each simulation
               debrief. Reserve levels are percentages of a mission reference target;
-              loadout points and scores are game rules, not flight engineering data.
+              loadout points and scores are game rules, not flight engineering data. The
+              tracker is an original implementation inspired by NASA Mission Viz; no
+              upstream code or assets were reused. NASA does not endorse this project.
             </p>
           </div>
         </HudPanel>

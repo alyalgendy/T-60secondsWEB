@@ -8,3 +8,7 @@ export { useDecision, getTurnPlayerId } from './useDecision';
 export type { UseDecisionArgs, UseDecisionResult } from './useDecision';
 export { useResults } from './useResults';
 export type { UseResultsResult } from './useResults';
+export { useDesign } from './useDesign';
+export type { UseDesignArgs, UseDesignResult } from './useDesign';
+export { useMission } from './useMission';
+export type { UseMissionArgs, UseMissionResult } from './useMission';

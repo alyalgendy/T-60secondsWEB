@@ -1,0 +1,356 @@
+.compact {
+  display: grid;
+  width: min(100%, 430px);
+  gap: 0.35rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid rgba(92, 206, 242, 0.34);
+  border-radius: 0.75rem;
+  background: rgba(3, 14, 26, 0.88);
+  box-shadow: inset 0 0 1.5rem rgba(53, 166, 208, 0.1);
+}
+
+.picker,
+.replay {
+  position: fixed;
+  z-index: 1200;
+  inset: 0;
+  display: grid;
+  overflow: auto;
+  place-items: center;
+  padding: clamp(0.7rem, 3vw, 2rem);
+  background: rgba(1, 6, 14, 0.96);
+  backdrop-filter: blur(12px);
+}
+
+.modalContent {
+  display: grid;
+  width: min(100%, 920px);
+  gap: 0.7rem;
+  padding: clamp(0.75rem, 2vw, 1.4rem);
+  border: 1px solid rgba(104, 221, 255, 0.42);
+  border-radius: 1rem;
+  background:
+    radial-gradient(ellipse at 50% 35%, rgba(12, 57, 82, 0.55), transparent 70%),
+    #07111d;
+  box-shadow: 0 0 3rem rgba(0, 174, 255, 0.12);
+}
+
+.trackerHeading,
+.modalHeader,
+.trackerFoot,
+.replayControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.trackerHeading > div {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.eyebrow {
+  color: #76c9e8;
+  font: 0.58rem var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.trackerHeading strong,
+.modalHeader h2 {
+  margin: 0;
+  color: #e4f7ff;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.days {
+  color: #b6dcea;
+  font: 0.65rem var(--font-mono);
+  white-space: nowrap;
+}
+
+.orbitView {
+  position: relative;
+  min-width: 0;
+  min-height: 120px;
+  overflow: hidden;
+  border: 1px solid rgba(81, 162, 199, 0.2);
+  border-radius: 0.6rem;
+  background:
+    radial-gradient(ellipse at 50% 55%, rgba(25, 88, 123, 0.16), transparent 62%),
+    rgba(2, 8, 17, 0.78);
+}
+
+.orbitCanvas {
+  display: block;
+  width: 100%;
+  height: 190px;
+}
+
+.compact .orbitCanvas {
+  height: 115px;
+}
+
+.canvasFallback {
+  position: absolute;
+  inset: 45% auto auto 50%;
+  color: #c4deea;
+  font-size: 0.72rem;
+  transform: translate(-50%, -50%);
+}
+
+.bodyLabels {
+  position: absolute;
+  right: 0.4rem;
+  bottom: 0.3rem;
+  left: 0.4rem;
+  display: flex;
+  justify-content: space-between;
+  color: #a9c5d3;
+  font: 0.53rem var(--font-mono);
+  pointer-events: none;
+}
+
+.timeline {
+  position: relative;
+  height: 0.48rem;
+  margin: 0.18rem 0.5rem;
+  border: 1px solid rgba(136, 194, 216, 0.45);
+  border-radius: 1rem;
+  background: #152635;
+}
+
+.timelineFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #287fbd, #7beaff);
+}
+
+.eventMarker {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  display: grid;
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  transform: translate(-50%, -50%);
+}
+
+.eventMarker > span {
+  display: grid;
+  width: 0.55rem;
+  height: 0.55rem;
+  border: 1px solid #14202d;
+  place-items: center;
+  border-radius: 50%;
+  color: #2b1d05;
+  background: #ffc966;
+  font: 0.48rem/1 var(--font-mono);
+  box-shadow: 0 0 0.5rem currentColor;
+}
+
+.eventMarker[data-status='resolved'] > span {
+  color: #062215;
+  background: #67e5a3;
+}
+
+.eventMarker[data-status='failed'] > span {
+  color: #31080d;
+  background: #ff6573;
+}
+
+.eventMarker:focus-visible {
+  outline: 2px solid #f4fbff;
+  outline-offset: 2px;
+}
+
+.craftProgress {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  color: #a4f6ff;
+  font-size: 0.8rem;
+  line-height: 1;
+  text-shadow: 0 0 0.6rem #64e7ff;
+  transform: translate(-50%, -50%);
+}
+
+.trackerFoot {
+  min-height: 1rem;
+  color: #91aab8;
+  font: 0.52rem var(--font-mono);
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #bed0d9;
+}
+
+.legend i {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: #ffc966;
+}
+
+.legend i[data-status='resolved'] {
+  background: #67e5a3;
+}
+
+.legend i[data-status='failed'] {
+  background: #ff6573;
+}
+
+.modalHeader {
+  align-items: flex-start;
+}
+
+.modalHeader > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.modalHeader h2 {
+  font-size: clamp(1rem, 2.4vw, 1.4rem);
+}
+
+.closeButton,
+.windowOptions button,
+.replayControls button {
+  min-height: 2rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid rgba(122, 214, 245, 0.44);
+  border-radius: 0.55rem;
+  color: #e3f7ff;
+  background: rgba(13, 51, 72, 0.8);
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.closeButton:hover,
+.closeButton:focus-visible,
+.windowOptions button:hover,
+.windowOptions button:focus-visible,
+.replayControls button:hover,
+.replayControls button:focus-visible {
+  border-color: #c4f2ff;
+  background: rgba(29, 100, 130, 0.9);
+}
+
+.windowOptions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.windowOptions button {
+  display: grid;
+  justify-items: start;
+  gap: 0.22rem;
+  min-height: 4.1rem;
+  text-align: left;
+}
+
+.windowOptions button[data-selected='true'] {
+  border-color: #77f0c0;
+  background: rgba(18, 83, 75, 0.74);
+}
+
+.windowOptions button strong {
+  font: 0.7rem var(--font-display);
+  text-transform: uppercase;
+}
+
+.windowOptions button span,
+.windowOptions button small {
+  color: #b2c8d2;
+  font-size: 0.63rem;
+}
+
+.selectionNote,
+.creditLine {
+  margin: 0;
+  color: #a9c0cc;
+  font-size: 0.67rem;
+  line-height: 1.4;
+}
+
+.replayControls {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.replayControls > span {
+  color: #cce6ef;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.creditLine {
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(104, 183, 210, 0.16);
+}
+
+:is(button, a):focus-visible {
+  outline: 3px solid #ffe27a;
+  outline-offset: 3px;
+}
+
+.tutorial {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid rgba(104, 183, 210, 0.2);
+  border-radius: 0.55rem;
+  color: #b7d2de;
+  background: rgba(8, 24, 37, 0.72);
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.tutorial > span {
+  color: #87e2ff;
+  font-size: 0.95rem;
+}
+
+.tutorial > div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.tutorial strong {
+  color: #d7eff8;
+}
+
+.tutorial p {
+  margin: 0;
+}
+
+@media (max-width: 520px) {
+  .windowOptions {
+    grid-template-columns: 1fr;
+  }
+
+  .trackerFoot {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .picker,
+  .replay {
+    scroll-behavior: auto;
+  }
+}
