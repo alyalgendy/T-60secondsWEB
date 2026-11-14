@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import clsx from 'clsx';
 import { missionConfig } from './config';
-import { formatUnits, scorePlan } from '../../shared/scoring';
+import { formatUnits, scorePlan, toReservePercent } from '../../shared/scoring';
 import type { MissionPlan, PlanningSceneProps, ResourceKey } from '../../shared/types';
 import {
   FactCard,
@@ -9,6 +9,7 @@ import {
   HudButton,
   HudPanel,
   HudShell,
+  MissionViz,
   PlayerBadge,
   ReadyBar,
   ResourceSlider,
@@ -61,15 +62,15 @@ export default function IssScene({
   }
   if (overBudget) {
     blockers.push(
-      `Mass is ${formatUnits(analysis.massUsed - analysis.massBudget)} units over the ${formatUnits(
+      `Loadout is ${formatUnits(analysis.massUsed - analysis.massBudget)} points over the ${formatUnits(
         analysis.massBudget,
-      )}-unit budget.`,
+      )}-point budget.`,
     );
   }
   for (const need of underMinimum) {
     const missing = need.min - valueOf(draft.resources, need.key);
     blockers.push(
-      `${need.label} is ${formatUnits(missing)} below the ${formatUnits(need.min)}-unit minimum.`,
+      `${need.label} is ${formatUnits(missing)}% below the ${formatUnits(need.min)}% minimum.`,
     );
   }
   const notReady = players.filter((player) => !readyLookup.has(player.id));
@@ -149,8 +150,8 @@ export default function IssScene({
           title="Plan Builder"
           subtitle={
             craft
-              ? `${craft.name} · ${craft.crewCapacity} crew · ${formatUnits(analysis.massBudget)} units of capacity`
-              : 'Pick a craft to see its mass capacity'
+              ? `${craft.name} · ${craft.crewCapacity} crew · ${formatUnits(analysis.massBudget)} loadout points`
+              : 'Pick a craft to see its loadout budget'
           }
           className={styles.columnPanel}
           scroll
@@ -180,7 +181,7 @@ export default function IssScene({
                     >
                       <span className={styles.craftOptionName}>{option.name}</span>
                       <span className={styles.craftMeta}>
-                        {option.crewCapacity} crew · {option.massCapacity} units
+                        {option.crewCapacity} crew · {option.massCapacity} loadout points
                       </span>
                       <span className={styles.craftDesc}>{option.description}</span>
                     </button>
@@ -197,7 +198,7 @@ export default function IssScene({
               <div className={styles.craftName}>{craft.name}</div>
               <p className={styles.craftDesc}>{craft.description}</p>
               <p className={styles.craftMeta}>
-                {craft.crewCapacity} crew · {craft.massCapacity} units of capacity
+                {craft.crewCapacity} crew · {craft.massCapacity} loadout points
               </p>
             </div>
           ) : (
@@ -206,7 +207,7 @@ export default function IssScene({
 
           <div className={styles.sectionHead}>
             <span className={styles.sectionLabel}>Supplies</span>
-            <span className={styles.noteTight}>Game units, not kilograms</span>
+            <span className={styles.noteTight}>Reserve coverage · % of mission cap</span>
           </div>
 
           <div className={styles.sliders}>
@@ -228,8 +229,8 @@ export default function IssScene({
           ) : null}
 
           <p className={styles.footnote}>
-            Minimums keep the crew alive. Ideals leave a safe margin. Every unit adds mass, so the
-            crew cannot max everything.
+            Minimums, ideals and loadout costs are simplified game rules—not vehicle engineering
+            data. Science references and NASA sources are shown in the mission profile.
           </p>
         </HudPanel>
 
@@ -248,13 +249,20 @@ export default function IssScene({
                 </span>
               </div>
 
+              <MissionViz
+                config={missionConfig}
+                crewCount={players.length}
+                resources={draft.resources}
+                phase="Preflight"
+              />
+
               <GaugeBar
-                label="Mass used"
+                label="Loadout used"
                 value={analysis.massUsed}
                 max={analysis.massBudget}
                 limit="atMost"
-                unit="units"
-                hint={`Ceiling set by ${craft?.name ?? 'the mission'}.`}
+                unit="points"
+                hint={`Game-balance ceiling set by ${craft?.name ?? 'the mission'}.`}
               />
 
               <div className={styles.divider} role="presentation" />
@@ -267,10 +275,10 @@ export default function IssScene({
                     key={need.key}
                     compact
                     label={need.label}
-                    value={valueOf(draft.resources, need.key)}
-                    max={need.max}
-                    min={need.min}
-                    ideal={need.ideal}
+                    value={toReservePercent(valueOf(draft.resources, need.key), need.max)}
+                    max={100}
+                    min={toReservePercent(need.min, need.max)}
+                    ideal={toReservePercent(need.ideal, need.max)}
                   />
                 ))}
               </div>
@@ -284,7 +292,7 @@ export default function IssScene({
                     <StatusPill tone={scoreTone}>{scoreLabel}</StatusPill>
                   </div>
                   <p className={styles.scoreHint}>
-                    Rises as each supply nears its ideal. Oversupply still costs mass.
+                    Rises as each reserve approaches its target. Oversupply still costs loadout points.
                   </p>
                 </div>
                 <p className={styles.scoreValue} aria-hidden="true">

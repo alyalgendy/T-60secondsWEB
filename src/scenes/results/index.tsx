@@ -285,7 +285,7 @@ export default function ResultsScene({
                   </span>
                 </span>
                 <span className={styles.metaItem}>
-                  <span className={styles.metaLabel}>Mass</span>
+                  <span className={styles.metaLabel}>Loadout points</span>
                   <span className={styles.metaValue}>
                     {row.plan ? `${row.plan.massUsed} / ${row.plan.massBudget}` : '—'}
                   </span>
@@ -370,8 +370,8 @@ export default function ResultsScene({
             <span className={styles.sectionLabel}>Sources</span>
             <p className={styles.creditsText}>
               Mission facts are drawn from NASA and ESA sources cited in each simulation
-              debrief. T -60 seconds is a game; game units and scores are not real
-              engineering data.
+              debrief. Reserve levels are percentages of a mission reference target;
+              loadout points and scores are game rules, not flight engineering data.
             </p>
           </div>
         </HudPanel>

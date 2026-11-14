@@ -10,15 +10,21 @@ import type {
 /** Stable UI order for resource rows across planning / decision screens. */
 export const RESOURCE_ORDER: readonly ResourceKey[] = RESOURCE_KEYS;
 
-/** Short display for game-unit amounts in planning UI. */
+/** Short display for reserve coverage percentages and loadout points. */
 export function formatUnits(value: number): string {
   if (!Number.isFinite(value)) return '0';
   return Number.isInteger(value) ? String(value) : value.toFixed(1);
 }
 
+/** Convert an internal planning value to its displayed share of the mission cap. */
+export function toReservePercent(value: number, cap: number): number {
+  if (!Number.isFinite(value) || !Number.isFinite(cap) || cap <= 0) return 0;
+  return Math.round(clamp((value / cap) * 100, 0, 100));
+}
+
 /**
- * The mass budget for a plan. When a craft is selected, its capacity is the
- * budget. Missions with no craft step fall back to MissionConfig.massBudget.
+ * The game-balance loadout budget for a plan. When a craft is selected, its
+ * capacity is the budget. Missions with no craft step use MissionConfig.massBudget.
  */
 export function getMassBudget(
   config: MissionConfig,
@@ -63,15 +69,16 @@ export function getLaunchBlockers(
   const massUsed = getMassUsed(config, draft.resources);
   if (massUsed > massBudget) {
     blockers.push(
-      `Mass budget exceeded by ${Math.ceil(massUsed - massBudget)} units.`,
+      `Loadout budget exceeded by ${Math.ceil(massUsed - massBudget)} points.`,
     );
   }
 
   for (const need of config.needs) {
     const value = draft.resources[need.key] ?? 0;
     if (value < need.min) {
+      const minimum = toReservePercent(need.min, need.max);
       blockers.push(
-        `${need.label} is below its minimum of ${need.min} ${need.unit}.`,
+        `${need.label} is below its minimum of ${minimum}${need.unit}.`,
       );
     }
   }
@@ -84,8 +91,8 @@ export function getLaunchBlockers(
  * - start at 100
  * - lose points for every resource below its ideal (proportional)
  * - lose points heavily for every resource below its minimum
- * - lose points for going over the mass budget
- * - small bonus for finishing with a 5-15% mass margin
+ * - lose points for exceeding the loadout budget
+ * - small bonus for finishing with a 5-15% loadout margin
  */
 export function scorePlan(
   config: MissionConfig,
@@ -100,16 +107,20 @@ export function scorePlan(
     if (value < need.min) {
       const span = Math.max(1, need.min);
       const shortfall = (need.min - value) / span;
+      const shownValue = toReservePercent(value, need.max);
+      const shownMinimum = toReservePercent(need.min, need.max);
       score -= 35 + 25 * shortfall;
       problems.push(
-        `${need.label} is below the minimum (${value} of ${need.min} ${need.unit}). The mission cannot launch.`,
+        `${need.label} is below the minimum (${shownValue}${need.unit} of ${shownMinimum}${need.unit}). The mission cannot launch.`,
       );
     } else if (value < need.ideal) {
       const span = Math.max(1, need.ideal - need.min);
       const shortfall = (need.ideal - value) / span;
+      const shownValue = toReservePercent(value, need.max);
+      const shownIdeal = toReservePercent(need.ideal, need.max);
       score -= 12 * shortfall;
       problems.push(
-        `${need.label} is below the ideal level (${value} of ${need.ideal} ${need.unit}).`,
+        `${need.label} is below the ideal level (${shownValue}${need.unit} of ${shownIdeal}${need.unit}).`,
       );
     }
   }
@@ -121,7 +132,7 @@ export function scorePlan(
     const over = (massUsed - massBudget) / Math.max(1, massBudget);
     score -= 30 + 40 * Math.min(1, over);
     problems.push(
-      `Mass budget exceeded by ${Math.ceil(massUsed - massBudget)} units.`,
+      `Loadout budget exceeded by ${Math.ceil(massUsed - massBudget)} points.`,
     );
   } else {
     const margin = (massBudget - massUsed) / Math.max(1, massBudget);

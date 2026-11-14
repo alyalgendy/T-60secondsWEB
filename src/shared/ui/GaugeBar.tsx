@@ -46,7 +46,7 @@ export function GaugeBar({
   max,
   min,
   ideal,
-  unit = 'units',
+  unit = '%',
   tone,
   compact = false,
   limit,

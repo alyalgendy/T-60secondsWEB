@@ -1,0 +1,283 @@
+.viz {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(115, 193, 255, 0.18);
+  border-radius: 16px;
+  background:
+    radial-gradient(ellipse at 9% 55%, rgba(35, 122, 181, 0.16), transparent 38%),
+    linear-gradient(135deg, rgba(10, 23, 45, 0.95), rgba(7, 12, 27, 0.84));
+  box-shadow: inset 0 1px 0 rgba(230, 241, 255, 0.045), 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.header,
+.systemHead,
+.phaseRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.eyebrow,
+.scienceLabel {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+
+.title {
+  margin: 3px 0 0;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.11em;
+  color: var(--text);
+}
+
+.day {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.day span {
+  color: var(--text-dim);
+}
+
+.trajectory {
+  display: block;
+  width: 100%;
+  min-height: 94px;
+  overflow: visible;
+}
+
+.routeGlow,
+.route {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.routeGlow {
+  stroke: rgba(79, 209, 255, 0.17);
+  stroke-width: 10;
+  filter: blur(4px);
+}
+
+.route {
+  stroke: rgba(117, 207, 255, 0.72);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 7;
+}
+
+.earthGlow {
+  fill: rgba(79, 209, 255, 0.13);
+}
+
+.earth {
+  fill: #1787ba;
+  stroke: #86e5ff;
+  stroke-width: 1;
+}
+
+.earthMark {
+  fill: #71d5a5;
+}
+
+.orbit {
+  fill: none;
+  stroke: rgba(176, 229, 255, 0.55);
+  stroke-width: 1;
+}
+
+.station {
+  fill: none;
+  stroke: #9eeaff;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.moon {
+  fill: #c4cfda;
+  stroke: #f0f5ff;
+  stroke-width: 1;
+}
+
+.mars {
+  fill: #d65b47;
+  stroke: #ffa38d;
+  stroke-width: 1;
+}
+
+.ship {
+  fill: #fff3bd;
+  filter: drop-shadow(0 0 5px rgba(255, 212, 125, 0.8));
+  transition: transform 800ms ease;
+}
+
+.shipTrail {
+  stroke: #ffca76;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  opacity: 0.75;
+}
+
+.earthLabel,
+.destinationLabel {
+  fill: rgba(190, 211, 235, 0.72);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.1em;
+}
+
+.phaseRow {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--text-dim);
+}
+
+.phaseTrack,
+.systemTrack {
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(160, 190, 230, 0.13);
+}
+
+.phaseTrack {
+  flex: 1;
+}
+
+.phaseTrack span,
+.systemTrack span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #39a9e3, #98f2ff);
+  box-shadow: 0 0 9px rgba(79, 209, 255, 0.5);
+  transition: width 500ms ease;
+}
+
+.systems {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.systemHead {
+  align-items: baseline;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--text-dim);
+}
+
+.systemHead strong {
+  color: var(--text);
+  font-size: 9px;
+}
+
+.systemTrack {
+  margin-top: 5px;
+}
+
+.science {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 10px;
+  border: 1px solid rgba(122, 185, 225, 0.14);
+  border-radius: 11px;
+  background: rgba(6, 12, 25, 0.48);
+}
+
+.science > div {
+  display: grid;
+  gap: 2px;
+}
+
+.science strong {
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--text);
+}
+
+.scienceDetail,
+.scienceCurrent {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  line-height: 1.4;
+  color: var(--text-dim);
+}
+
+.scienceCurrent {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.note {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 1.4;
+  color: rgba(185, 200, 220, 0.78);
+}
+
+.sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 12px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+}
+
+.sources a {
+  color: #8edfff;
+  text-decoration: none;
+}
+
+.sources a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.powerReference {
+  color: #ffd18a;
+}
+
+.vizSource {
+  margin-left: auto;
+}
+
+@media (max-width: 560px) {
+  .systems {
+    grid-template-columns: 1fr;
+  }
+
+  .science {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .scienceCurrent {
+    text-align: left;
+  }
+
+  .vizSource {
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ship,
+  .phaseTrack span,
+  .systemTrack span {
+    transition: none;
+  }
+}

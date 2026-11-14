@@ -74,7 +74,7 @@
 .range::-webkit-slider-runnable-track {
   height: 6px;
   border: 1px solid rgba(79, 209, 255, 0.22);
-  border-radius: 2px;
+  border-radius: 999px;
   background: linear-gradient(
     90deg,
     var(--tone) 0%,
@@ -88,13 +88,13 @@
 .range::-moz-range-track {
   height: 6px;
   border: 1px solid rgba(79, 209, 255, 0.22);
-  border-radius: 2px;
+  border-radius: 999px;
   background: rgba(79, 209, 255, 0.08);
 }
 
 .range::-moz-range-progress {
   height: 6px;
-  border-radius: 2px;
+  border-radius: 999px;
   background: var(--tone);
 }
 
