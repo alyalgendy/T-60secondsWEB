@@ -13,7 +13,7 @@ export interface GaugeBarProps {
   unit?: string;
   tone?: GaugeTone;
   compact?: boolean;
-  /** Whether max is a ceiling or a floor. Affects the spoken value only. */
+  /** Whether max is a ceiling or a floor. A breached ceiling reads as danger. */
   limit?: 'atMost' | 'atLeast';
   /** Optional explanatory line shown under the bar. */
   hint?: string;
@@ -55,8 +55,9 @@ export function GaugeBar({
 }: GaugeBarProps) {
   const safeMax = Math.max(1, max);
   const percent = Math.max(0, Math.min(100, (value / safeMax) * 100));
-  const resolvedTone = tone ?? toneFor(value, min, ideal);
-  const stateLabel = toneLabel(value, min, ideal);
+  const overLimit = limit === 'atMost' && value > max;
+  const resolvedTone = tone ?? (overLimit ? 'danger' : toneFor(value, min, ideal));
+  const stateLabel = overLimit ? 'Over limit' : toneLabel(value, min, ideal);
   const minPercent = min !== undefined ? (min / safeMax) * 100 : null;
   const idealPercent = ideal !== undefined ? (ideal / safeMax) * 100 : null;
   const limitText =
