@@ -9,15 +9,23 @@
 
 .designConsole {
   display: flex;
+<<<<<<< Updated upstream
   width: min(90rem, 100%);
+=======
+  width: min(96rem, 100%);
+>>>>>>> Stashed changes
   height: 100%;
   max-height: none;
   min-height: 0;
   flex-direction: column;
+<<<<<<< Updated upstream
   gap: 0.25rem;
+=======
+  gap: 0.3rem;
+>>>>>>> Stashed changes
   overflow: hidden;
   margin: 0 auto;
-  padding: 0.25rem 0.4rem 0.55rem;
+  padding: 0.1rem 0.25rem 0.2rem;
   scrollbar-color: #3c7591 #091421;
 }
 
@@ -94,10 +102,10 @@
 
 .crewBar {
   display: flex;
-  min-height: 2rem;
+  min-height: 0;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .crewTokens {
@@ -189,18 +197,18 @@
   min-width: 0;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 0.05rem 0.25rem;
-  padding: 0.22rem 0.3rem;
+  gap: 0 0.22rem;
+  padding: 0.14rem 0.26rem;
   border: 1px solid rgba(110, 169, 197, 0.23);
   border-radius: 0.3rem;
   background: rgba(8, 24, 37, 0.73);
-  font-size: 0.6rem;
+  font-size: 0.55rem;
 }
 
 .systemGauge > span:first-child {
   grid-row: span 2;
   color: #7cdaff;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .systemGauge > span:nth-child(2) {
@@ -210,7 +218,7 @@
 .systemGauge strong {
   overflow: hidden;
   color: #ebf8ff;
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -279,26 +287,33 @@
 
 .tutorial {
   display: flex;
+  min-height: 0;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0.45rem;
+  gap: 0.3rem;
+  padding: 0.16rem 0.35rem;
   border-left: 2px solid #65d3ff;
   background: rgba(8, 21, 33, 0.66);
 }
 
 .tutorialGlyph {
   color: #80e0ff;
-  font-size: 1.15rem;
+  font-size: 0.95rem;
 }
 
 .tutorialCopy {
   display: flex;
   min-width: 0;
   flex: 1;
-  flex-direction: column;
-  gap: 0.05rem;
+  align-items: baseline;
+  gap: 0.4rem;
   color: #bbd0dd;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
+}
+
+.tutorialCopy > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tutorialCopy strong {
@@ -314,33 +329,42 @@
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
+<<<<<<< Updated upstream
   padding: 0.25rem;
+=======
+  padding: 0.16rem 0.3rem;
+>>>>>>> Stashed changes
   border: 1px solid rgba(92, 182, 219, 0.24);
   border-radius: 0.45rem;
   background: linear-gradient(140deg, rgba(10, 28, 44, 0.86), rgba(4, 12, 22, 0.92));
 }
 
 .stageHeading {
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.22rem;
 }
 
 .stageHeading h1 {
-  margin: 0.1rem 0 0;
+  margin: 0.05rem 0 0;
   color: #effaff;
-  font: 1rem var(--font-display);
+  font: 0.92rem var(--font-display);
 }
 
 .stageGlyph {
   color: #7bdbff;
-  font-size: 1.6rem;
+  font-size: 1.3rem;
 }
 
 .objectiveGrid,
 .choiceGrid,
 .tradeGrid {
   display: grid;
+<<<<<<< Updated upstream
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.35rem;
+=======
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.28rem;
+>>>>>>> Stashed changes
 }
 
 .objectiveCard,
@@ -348,7 +372,7 @@
 .optionCard,
 .windowChoice {
   min-width: 0;
-  padding: 0.42rem;
+  padding: 0.32rem;
   border: 1px solid rgba(112, 168, 194, 0.34);
   border-radius: 0.35rem;
   color: #dcebf4;
@@ -414,7 +438,7 @@
 
 .actionRow {
   justify-content: flex-end;
-  margin-top: 0.4rem;
+  margin-top: 0.25rem;
 }
 
 .selectionCount {
@@ -463,8 +487,8 @@
 .segmentRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
-  margin: 0.2rem 0 0.35rem;
+  gap: 0.22rem;
+  margin: 0.12rem 0 0.24rem;
 }
 
 .objectiveChip {
@@ -870,9 +894,9 @@
 .segment {
   display: flex;
   align-items: center;
-  gap: 0.2rem;
+  gap: 0.18rem;
   color: #a9bdca;
-  font-size: 0.6rem;
+  font-size: 0.56rem;
 }
 
 .segment[data-complete='true'] {
@@ -880,21 +904,21 @@
 }
 
 .segment > span {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .gateGrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.25rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.2rem;
 }
 
 .gate {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 0.1rem 0.3rem;
-  padding: 0.25rem 0.35rem;
+  gap: 0.04rem 0.26rem;
+  padding: 0.16rem 0.28rem;
   border: 1px solid rgba(121, 160, 177, 0.26);
   border-radius: 0.25rem;
   background: rgba(8, 20, 30, 0.8);
@@ -903,7 +927,7 @@
 .gateShape {
   grid-row: span 2;
   color: #75e5b3;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
 }
 
 .gate[data-status='amber'] .gateShape {
@@ -916,19 +940,19 @@
 
 .gate strong {
   color: #e1eef5;
-  font-size: 0.6rem;
+  font-size: 0.56rem;
 }
 
 .gate > span:last-child {
   color: #abc0cd;
-  font: 0.54rem var(--font-mono);
+  font: 0.5rem var(--font-mono);
 }
 
 .designReadouts {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.3rem;
+  gap: 0.35rem;
+  margin-top: 0.2rem;
 }
 
 .riskReadout,
@@ -936,9 +960,9 @@
   display: flex;
   flex: 1;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.28rem;
   color: #a9c0cd;
-  font: 0.55rem var(--font-mono);
+  font: 0.52rem var(--font-mono);
 }
 
 .riskMeter {
@@ -961,11 +985,18 @@
 }
 
 .signoffRow {
-  margin-top: 0.35rem;
+  margin-top: 0.22rem;
 }
 
 .signoffRow .selectionCount {
   margin-right: auto;
+}
+
+.launchWarning {
+  margin-right: 0.2rem;
+  color: #ff8d98;
+  font-size: 0.82rem;
+  line-height: 1;
 }
 
 .bottomRail {
@@ -1028,6 +1059,12 @@
 
 @keyframes pingPulse {
   to { box-shadow: 0 0 0.8rem rgba(255, 195, 86, 0.4); }
+}
+
+@media (max-width: 900px) {
+  .gateGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 620px) {

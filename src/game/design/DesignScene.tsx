@@ -25,8 +25,11 @@ import type {
 } from '../../shared/types';
 import {
   calculateDesignStats,
+<<<<<<< Updated upstream
   canLaunch,
   canLaunchEarly,
+=======
+>>>>>>> Stashed changes
   createInitialDesignState,
   DESIGN_SECONDS,
   DESIGN_SYSTEMS,
@@ -264,6 +267,7 @@ export default function DesignScene({
   const stats = state ? calculateDesignStats(state, content) : null;
   const gates = state ? getReadinessGates(state, missionId) : [];
   const segments = state ? getSegmentChecklist(state, missionId) : [];
+  const hasRedGate = gates.some((gate) => gate.status === 'red');
 
   const changeState = useCallback(
     (transform: (current: DesignState) => DesignState) => {
@@ -525,7 +529,6 @@ export default function DesignScene({
 
   const launch = () => {
     if (!me.isHost || !allReady || !state) return;
-    if (!canLaunch(state, missionId) && !(state.rushed && expired)) return;
     autoLaunchFired.current = true;
     void Promise.resolve(onContinue());
   };
@@ -551,6 +554,7 @@ export default function DesignScene({
 
   if (loading || !state) {
     return (
+<<<<<<< Updated upstream
       <CapsuleShell
         missionId={missionId}
         showOnboarding
@@ -559,6 +563,9 @@ export default function DesignScene({
         onboardingSteps={DESIGN_TUTORIAL_STEPS}
         onboardingStorageKey="t60.design.tutorial.v1"
       >
+=======
+      <CapsuleShell missionId={missionId} showOnboarding size="large">
+>>>>>>> Stashed changes
         <div className={styles.loading}>SYNCING DESIGN</div>
       </CapsuleShell>
     );
@@ -572,6 +579,7 @@ export default function DesignScene({
     );
 
   return (
+<<<<<<< Updated upstream
     <CapsuleShell
       missionId={missionId}
       progress={0.14}
@@ -581,6 +589,9 @@ export default function DesignScene({
       onboardingSteps={DESIGN_TUTORIAL_STEPS}
       onboardingStorageKey="t60.design.tutorial.v1"
     >
+=======
+    <CapsuleShell missionId={missionId} progress={0.14} showOnboarding size="large">
+>>>>>>> Stashed changes
       <div className={styles.designConsole} aria-label={`${content.name} mission design`}>
         <header className={styles.topLine}>
           <div className={styles.stages} aria-label="Design stages">
@@ -1182,7 +1193,6 @@ export default function DesignScene({
                 <button
                   className={styles.readyButton}
                   type="button"
-                  disabled={!canLaunch(state, missionId) && !(state.rushed && expired)}
                   aria-pressed={state.ready.includes(activePlayer.id)}
                   onClick={toggleReady}
                 >
@@ -1194,14 +1204,28 @@ export default function DesignScene({
                 <button
                   className={styles.launchButton}
                   type="button"
-                  disabled={!me.isHost || !allReady || (!canLaunch(state, missionId) && !(state.rushed && expired))}
+                  disabled={!me.isHost || !allReady}
                   onClick={launch}
                 >
+<<<<<<< Updated upstream
                   {state.rushed && expired
                     ? 'Launch anyway'
                     : expired
                       ? 'Launch'
                       : 'Start mission'}
+=======
+                  {hasRedGate && (
+                    <span
+                      className={styles.launchWarning}
+                      role="img"
+                      aria-label="Launching with red gates adds risk"
+                      title="Launching with red gates adds risk"
+                    >
+                      ⚠
+                    </span>
+                  )}
+                  {state.rushed && expired ? 'Launch anyway' : 'Launch'}
+>>>>>>> Stashed changes
                 </button>
               </div>
               <MarkerSlot markers={markers} anchor="design-ready" />

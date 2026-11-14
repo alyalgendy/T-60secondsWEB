@@ -13,7 +13,6 @@ import type { AnchorId, StaticAnchorId } from "./anchors";
 import { isValidRoomCode } from "./room-code";
 import { MAX_PLAYERS, type RoomView } from "./types";
 import type { DesignState, MissionId, MissionState, Player, ResourceKey } from "@/shared/types";
-import { getReadinessGates } from "@/game/design/designLogic";
 
 /**
  * Markers are ALWAYS derived from state. Components must never invent their
@@ -268,24 +267,13 @@ export function getDesignMarkers(input: {
   now: number;
   missionId?: MissionId;
 }): Marker[] {
-  const { state, playerId, players, now, missionId = "iss" } = input;
+  const { state, playerId, players, now } = input;
   const crew = players.filter((player) => player.connected);
   const anchor = DESIGN_STAGE_ANCHORS[state.stage];
   const markers: Marker[] = [];
 
   if (state.stage === "review") {
-    const redGates = getReadinessGates(state, missionId).filter(
-      (gate) => gate.status === "red",
-    );
-    if (redGates.length > 0) {
-      markers.push({
-        id: "design-review-blocked",
-        anchor,
-        kind: "state",
-        severity: "critical",
-        label: "Readiness blocked",
-      });
-    } else if (!state.ready.includes(playerId)) {
+    if (!state.ready.includes(playerId)) {
       markers.push({
         id: "design-signoff",
         anchor: "design-ready",

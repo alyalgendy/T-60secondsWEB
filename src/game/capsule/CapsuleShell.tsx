@@ -119,15 +119,21 @@ function WarningAlert({
   );
 }
 
+export type CapsuleSize = 'default' | 'large' | 'compact';
+
 interface CapsuleInteriorProps {
   missionId: MissionId;
   progress: number;
   resources: CapsuleResources;
   showOnboarding: boolean;
+<<<<<<< Updated upstream
   compactWindow: boolean;
   expandedConsole: boolean;
   onboardingSteps?: readonly TutorialStep[];
   onboardingStorageKey: string;
+=======
+  size: CapsuleSize;
+>>>>>>> Stashed changes
   children: ReactNode;
 }
 
@@ -136,10 +142,14 @@ function CapsuleInterior({
   progress,
   resources,
   showOnboarding,
+<<<<<<< Updated upstream
   compactWindow,
   expandedConsole,
   onboardingSteps,
   onboardingStorageKey,
+=======
+  size,
+>>>>>>> Stashed changes
   children,
 }: CapsuleInteriorProps) {
   const { activeWarning, muted, toggleMute } = useWarnings();
@@ -185,9 +195,14 @@ function CapsuleInterior({
 
   return (
     <main
+<<<<<<< Updated upstream
       className={`${styles.shell} ${compactWindow ? styles.shellCompact : ''} ${expandedConsole ? styles.shellExpandedConsole : ''}`}
+=======
+      className={`${styles.shell} ${size === 'compact' ? styles.shellCompact : ''} ${size === 'large' ? styles.shellLarge : ''}`}
+>>>>>>> Stashed changes
       data-level={activeWarning?.level ?? 'none'}
       data-effect={activeWarning?.effect ?? 'none'}
+      data-size={size}
     >
       <StarfieldCanvas className={styles.starfield} />
       <section className={styles.viewport} aria-label="Space window">
@@ -302,6 +317,12 @@ export interface CapsuleShellProps {
   progress?: number;
   resources?: CapsuleResources;
   showOnboarding?: boolean;
+  /**
+   * Visual size of the capsule. `large` makes the window the hero of the
+   * screen (design phase), `compact` keeps the short window used by flight.
+   */
+  size?: CapsuleSize;
+  /** @deprecated Use `size="compact"`. */
   compactWindow?: boolean;
   expandedConsole?: boolean;
   onboardingSteps?: readonly TutorialStep[];
@@ -314,6 +335,7 @@ export function CapsuleShell({
   progress = 0.5,
   resources: providedResources = {},
   showOnboarding = false,
+  size,
   compactWindow = false,
   expandedConsole = false,
   onboardingSteps,
@@ -324,6 +346,8 @@ export function CapsuleShell({
     ...DEFAULT_RESOURCES,
     ...providedResources,
   };
+  const resolvedSize: CapsuleSize =
+    size ?? (compactWindow ? 'compact' : 'default');
 
   return (
     <WarningsProvider>
@@ -332,10 +356,14 @@ export function CapsuleShell({
         progress={progress}
         resources={resources}
         showOnboarding={showOnboarding}
+<<<<<<< Updated upstream
         compactWindow={compactWindow}
         expandedConsole={expandedConsole}
         onboardingSteps={onboardingSteps}
         onboardingStorageKey={onboardingStorageKey}
+=======
+        size={resolvedSize}
+>>>>>>> Stashed changes
       >
         {children}
       </CapsuleInterior>

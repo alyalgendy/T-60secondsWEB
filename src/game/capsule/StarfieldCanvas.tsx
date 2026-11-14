@@ -9,7 +9,7 @@ interface Star {
 }
 
 function createStars(): Star[] {
-  return Array.from({ length: 150 }, (_, index) => {
+  return Array.from({ length: 380 }, (_, index) => {
     const seed = index + 1;
     const randomX = Math.abs(Math.sin(seed * 127.1) * 43758.5453) % 1;
     const randomY = Math.abs(Math.sin(seed * 311.7) * 24634.6345) % 1;

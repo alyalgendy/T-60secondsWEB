@@ -50,6 +50,86 @@
   overflow: hidden;
 }
 
+/* Design phase: the window is the hero and the console is a dock. */
+.shellLarge {
+  height: 100vh;
+  min-height: 0;
+  max-height: 100vh;
+}
+
+.shellLarge .viewport {
+  flex: 0 0 clamp(22vh, 25vh, 28vh);
+  min-height: 0;
+  padding: clamp(0.45rem, 1vw, 0.9rem);
+}
+
+.shellLarge .windowFrame {
+  min-height: 0;
+  border-width: clamp(0.5rem, 1.1vw, 1rem);
+}
+
+.shellLarge .orbit {
+  width: min(88vw, 84rem);
+  height: 82%;
+}
+
+.shellLarge .planet {
+  width: clamp(10rem, 26vh, 22rem);
+}
+
+.shellLarge .consoleArea {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0.45rem clamp(0.8rem, 2vw, 1.5rem) 0.55rem;
+}
+
+.shellLarge .consoleBar {
+  min-height: 1.9rem;
+}
+
+.shellLarge .stationArea {
+  min-height: 0;
+  flex: 1 1 auto;
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+  padding: 0.35rem 0;
+}
+
+.shellLarge .resourceArea {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.shellLarge .resourceLabel {
+  flex: 0 0 auto;
+  font-size: 0.55rem;
+}
+
+.shellLarge .resourceRail {
+  flex: 1 1 auto;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding: 0.1rem 0;
+}
+
+.shellLarge .gauge {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 2.5rem;
+}
+
+.shellLarge .gaugeShort {
+  font-size: 0.48rem;
+}
+
+.shellLarge .gaugePercent {
+  font-size: 0.56rem;
+}
+
 .starfield {
   position: absolute;
   z-index: -1;

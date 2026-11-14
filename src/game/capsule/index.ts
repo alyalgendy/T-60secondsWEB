@@ -1,5 +1,5 @@
 export { CapsuleShell } from './CapsuleShell';
-export type { CapsuleShellProps } from './CapsuleShell';
+export type { CapsuleShellProps, CapsuleSize } from './CapsuleShell';
 export { useWarnings } from './WarningsProvider';
 export type {
   CapsuleResources,
