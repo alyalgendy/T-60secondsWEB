@@ -98,17 +98,7 @@ export default function App() {
       isHost: index === 0,
       connected: true,
     }));
-    return (
-      <DesignScene
-        roomCode="DESGN"
-        missionId="iss"
-        me={demoPlayers[0]!}
-        players={demoPlayers}
-        onContinue={() => undefined}
-        mock
-        allowSeatSwitch
-      />
-    );
+    return <V2DesignDemo players={demoPlayers} />;
   }
 
   if (mockParam || demoParam) {
@@ -129,6 +119,45 @@ export default function App() {
   }
 
   return <RoomApp />;
+}
+
+function V2DesignDemo({ players }: { players: Player[] }) {
+  const [launched, setLaunched] = useState(false);
+  const [run, setRun] = useState(0);
+  const host = players[0]!;
+  const roomCode = `DEMO${run}`;
+
+  const replay = () => {
+    setRun((current) => current + 1);
+    setLaunched(false);
+  };
+
+  if (launched) {
+    return (
+      <Suspense fallback={<LoadingScene roomCode={roomCode} me={host} players={players} />}>
+        <MissionScene
+          roomCode={roomCode}
+          missionId="iss"
+          me={host}
+          players={players}
+          onContinue={replay}
+          mock
+        />
+      </Suspense>
+    );
+  }
+
+  return (
+    <DesignScene
+      roomCode={roomCode}
+      missionId="iss"
+      me={host}
+      players={players}
+      onContinue={() => setLaunched(true)}
+      mock
+      allowSeatSwitch
+    />
+  );
 }
 
 function RoomApp() {
