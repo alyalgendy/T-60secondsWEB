@@ -323,6 +323,7 @@ function FlowRouter({ roomCode, me, players, step, setStep }: FlowRouterProps) {
     return (
       <Suspense fallback={<LoadingScene roomCode={roomCode} me={me} players={players} />}>
         <Scene
+          key={step}
           {...base}
           videoSrc={CUTSCENE_VIDEOS[step] ?? ''}
           title={CUTSCENE_TITLES[step] ?? STEP_LABELS[step]}

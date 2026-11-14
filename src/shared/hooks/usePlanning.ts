@@ -108,12 +108,17 @@ export function usePlanning({
       await runTransaction(draftRef, (currentData) => {
         const current = currentData as PlanDraft | null;
         const base = current ?? createInitialDraft(config);
-        const isReady = base.readyPlayerIds.includes(me.id);
+        // Firebase Realtime Database drops empty arrays, so an untouched draft
+        // comes back without readyPlayerIds. Never call .includes on undefined.
+        const readyPlayerIds = Array.isArray(base.readyPlayerIds)
+          ? base.readyPlayerIds
+          : [];
+        const isReady = readyPlayerIds.includes(me.id);
         return {
           ...base,
           readyPlayerIds: isReady
-            ? base.readyPlayerIds.filter((id) => id !== me.id)
-            : [...base.readyPlayerIds, me.id],
+            ? readyPlayerIds.filter((id) => id !== me.id)
+            : [...readyPlayerIds, me.id],
           updatedAt: Date.now(),
         };
       });

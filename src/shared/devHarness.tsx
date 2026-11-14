@@ -157,9 +157,10 @@ export default function DevHarness({
       const draft =
         current[mission] ?? (config ? createInitialDraft(config) : null);
       if (!draft) return current;
-      const allReady = players.every((player) =>
-        draft.readyPlayerIds.includes(player.id),
-      );
+      const readyIds = Array.isArray(draft.readyPlayerIds)
+        ? draft.readyPlayerIds
+        : [];
+      const allReady = players.every((player) => readyIds.includes(player.id));
       return {
         ...current,
         [mission]: {
@@ -279,6 +280,7 @@ export default function DevHarness({
     content = Scene ? (
       <Suspense fallback={<LoadingScene {...base} />}>
         <Scene
+          key={step}
           {...base}
           videoSrc={CUTSCENE_VIDEOS[step] ?? ''}
           title={CUTSCENE_TITLES[step] ?? STEP_LABELS[step]}
