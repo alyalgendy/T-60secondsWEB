@@ -1,13 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import type { MissionPlan, PlanningSceneProps, ResourceKey } from '../../shared/types';
-import { RESOURCE_ORDER, getLaunchBlockers, scorePlan } from '../../shared/scoring';
+import {
+  RESOURCE_ORDER,
+  getLaunchBlockers,
+  scorePlan,
+  toReservePercent,
+} from '../../shared/scoring';
 import {
   FactCard,
   GaugeBar,
   HudButton,
   HudPanel,
   HudShell,
+  MissionViz,
   PlayerBadge,
   ReadyBar,
   ResourceSlider,
@@ -184,7 +190,7 @@ export default function MoonScene({
               <span className={styles.eyebrow}>Destination</span>
               <h1 className={styles.destinationName}>{config.destination}</h1>
               <p className={styles.destinationMeta}>
-                Mission 02 · {config.durationDays} days on the surface · game units
+                Mission 02 · {config.durationDays} days on the surface
               </p>
             </div>
           </div>
@@ -205,8 +211,8 @@ export default function MoonScene({
           </div>
 
           <p className={styles.gameNote}>
-            Resources, mass and lander cost are game units, not real figures.
-            Every fact links to its NASA source.
+            Reserve sliders show coverage of the mission-specific cap. Lander
+            capacity and cost are game-balance points, not real vehicle figures.
           </p>
         </HudPanel>
 
@@ -246,7 +252,7 @@ export default function MoonScene({
                     onChange={() => {
                       void handleCraftChange(craft.id);
                     }}
-                    aria-label={`${craft.name}: ${craft.massCapacity} mass units, ${craft.crewCapacity} crew. Pros: ${craft.pros.join(
+                    aria-label={`${craft.name}: ${craft.massCapacity} loadout points, ${craft.crewCapacity} crew. Pros: ${craft.pros.join(
                       ', ',
                     )}. Cons: ${craft.cons.join(', ')}.`}
                   />
@@ -258,7 +264,7 @@ export default function MoonScene({
                   </span>
                   <span className={styles.craftStats}>
                     <span>
-                      Mass <b>{craft.massCapacity}</b>
+                      Loadout <b>{craft.massCapacity} pts</b>
                     </span>
                     <span>
                       Crew <b>{craft.crewCapacity}</b>
@@ -278,7 +284,7 @@ export default function MoonScene({
                     ) : null}
                     {typeof craft.cost === 'number' ? (
                       <span title="Game balance only, not a real price">
-                        Cost <b>{craft.cost}</b> game units
+                        Cost <b>{craft.cost}</b> game points
                       </span>
                     ) : null}
                   </span>
@@ -344,23 +350,29 @@ export default function MoonScene({
 
         <HudPanel
           title="Mission Status"
-          subtitle="Live score, mass and coverage"
+          subtitle="Mission profile, score and reserve coverage"
           className={styles.status}
           scroll
         >
+          <MissionViz
+            config={config}
+            crewCount={players.length}
+            resources={draft.resources}
+            phase="Preflight"
+          />
           <div id="moon-status">
             <MarkerSlot markers={markers} anchor="moon-status" />
           </div>
           <GaugeBar
-            label="Mass used"
+            label="Loadout used"
             value={scorePreview.massUsed}
             max={scorePreview.massBudget}
             limit="atMost"
-            unit="units"
+            unit="points"
             hint={
               selectedCraft
-                ? `${selectedCraft.name} budget: ${selectedCraft.massCapacity}`
-                : 'Select a lander to unlock its mass budget'
+                ? `${selectedCraft.name} game budget: ${selectedCraft.massCapacity} points`
+                : 'Select a lander to unlock its game loadout budget'
             }
           />
 
@@ -387,10 +399,10 @@ export default function MoonScene({
                 key={need.key}
                 compact
                 label={need.label}
-                value={draft.resources[need.key]}
-                max={need.max}
-                min={need.min}
-                ideal={need.ideal}
+                value={toReservePercent(draft.resources[need.key], need.max)}
+                max={100}
+                min={toReservePercent(need.min, need.max)}
+                ideal={toReservePercent(need.ideal, need.max)}
               />
             ))}
           </div>
@@ -420,7 +432,7 @@ export default function MoonScene({
             ) : (
               <p className={styles.checksPass}>
                 <span aria-hidden="true">✓ </span>
-                Mass, coverage and crew checks pass.
+                Loadout, coverage and crew checks pass.
               </p>
             )}
           </div>

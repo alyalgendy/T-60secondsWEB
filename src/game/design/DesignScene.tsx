@@ -1258,4 +1258,3 @@ export default function DesignScene({
     </CapsuleShell>
   );
 }
-

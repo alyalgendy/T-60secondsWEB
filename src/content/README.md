@@ -43,8 +43,9 @@ Rules:
 
 - Exactly 3 options per problem, with different trade-offs. No obviously
   correct option at first glance.
-- `effects` are game units. Negative numbers remove units. Only include keys
-  the problem actually affects.
+- `effects` change reserve allocation points (shown as a percentage of that
+  mission's cap). Negative numbers reduce coverage. Only include keys the
+  problem actually affects.
 - `scoreDelta` is between -20 and +20.
 - `realWorld.source` must be a real NASA or ESA page you have opened and read.
   Do not invent details the page does not state.

@@ -305,4 +305,3 @@ export function radarValues(option: SubsystemOption): number[] {
     option.reliability,
   ];
 }
-

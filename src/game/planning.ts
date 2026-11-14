@@ -1,8 +1,9 @@
 /**
  * Mission planning domain — pure and framework-free (no React, Firebase or DOM).
  *
- * Every mission scene (ISS, Moon, Mars) shares these types and helpers. Amounts
- * and masses are GAME UNITS, not kilograms, unless a source says otherwise.
+ * Every mission scene (ISS, Moon, Mars) shares these types and helpers. Resource
+ * values are reserve-cap coverage percentages; loadout capacity and cost are game
+ * balance points, not spacecraft mass.
  */
 
 export type MissionId = "iss" | "moon" | "mars";
@@ -31,15 +32,15 @@ export interface Fact {
 export interface ResourceNeed {
   key: ResourceKey;
   label: string;
-  /** Display unit, e.g. "units". */
+  /** Display unit for the reserve coverage percentage. */
   unit: string;
-  /** Below this the mission cannot launch. */
+  /** Below this percentage the mission cannot launch. */
   min: number;
-  /** At or above this the resource is safe. */
+  /** At or above this percentage the resource is safe. */
   ideal: number;
-  /** Slider maximum. */
+  /** Slider maximum percentage. */
   max: number;
-  /** Game mass spent per unit carried. */
+  /** Game loadout points spent per percentage point carried. */
   massPerUnit: number;
   /** One-line "why it matters". */
   why: string;
@@ -51,7 +52,7 @@ export interface CraftOption {
   id: string;
   name: string;
   description: string;
-  /** Usable mass budget in game units. */
+  /** Game-balance loadout capacity; not a real vehicle mass. */
   massCapacity: number;
   crewCapacity: number;
   pros: string[];
@@ -59,7 +60,7 @@ export interface CraftOption {
   source?: Source;
   /** Game-balance only. Real vehicles do not have a single "risk score". */
   risk?: CraftRisk;
-  /** Game-balance cost in game units, shown to the crew. Not a real price. */
+  /** Game-balance cost, shown to the crew. Not a real price. */
   cost?: number;
 }
 
@@ -70,7 +71,7 @@ export interface MissionConfig {
   /** One sentence. */
   goal: string;
   durationDays: number;
-  /** Fallback budget when no craft is selected yet. */
+  /** Fallback game-balance loadout budget when no craft is selected yet. */
   massBudget: number;
   needs: ResourceNeed[];
   crafts: CraftOption[];
@@ -224,7 +225,7 @@ const RISK_MODIFIER: Record<CraftRisk, number> = {
 };
 
 /**
- * Plan score, 0-100. Coverage is the bulk of it; overspending the mass budget
+ * Plan score, 0-100. Coverage is the bulk of it; overspending the loadout budget
  * and choosing a higher-risk lander both cost points.
  */
 export function scorePlan(
@@ -252,14 +253,16 @@ export function scorePlan(
   if (massUsed > massBudget) {
     score -= 30;
     problems.push(
-      `Mass is ${massUsed} / ${massBudget} — over budget by ${massUsed - massBudget} units.`,
+      `Loadout is ${massUsed} / ${massBudget} points — over budget by ${massUsed - massBudget} points.`,
     );
   }
 
   for (const item of coverage) {
     if (item.status === "below-min") {
+      const valuePercent = Math.round((item.value / Math.max(1, item.max)) * 100);
+      const minPercent = Math.round((item.min / Math.max(1, item.max)) * 100);
       problems.push(
-        `${item.label} is below minimum (${item.value} / ${item.min}).`,
+        `${item.label} is below minimum (${valuePercent}${item.unit} / ${minPercent}${item.unit}).`,
       );
     }
   }
@@ -273,7 +276,7 @@ export function scorePlan(
   };
 }
 
-/** Launch gate: craft chosen, mass within budget, every resource at its minimum. */
+/** Launch gate: craft chosen, loadout within budget, every reserve at its minimum. */
 export function checkLaunch(
   config: MissionConfig,
   draft: Pick<PlanDraft, "craftId" | "resources">,

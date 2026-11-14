@@ -71,14 +71,14 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     phase: "moon",
     anchor: "moon-craft",
     title: "Pick your ride",
-    body: "The lander sets your mass budget. A bigger bay gives you more margin; heavier ships cost more game units and carry more risk.",
+    body: "The lander sets your game loadout budget. A bigger bay gives you more margin; capacity and risk are simplified game rules, not real vehicle data.",
   },
   {
     id: "moon-resources",
     phase: "moon",
     anchor: "moon-resources",
     title: "Balance the load",
-    body: "Every unit spends mass. Fuel and shielding matter more here. Anything below its minimum blocks launch — the markers call it out.",
+    body: "Reserve sliders are percentages of a mission target. Fuel and shielding matter more here. Every allocation spends game loadout points; anything below its minimum blocks launch.",
   },
   {
     id: "moon-ready",

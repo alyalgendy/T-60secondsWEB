@@ -285,7 +285,7 @@ export default function ResultsScene({
                   </span>
                 </span>
                 <span className={styles.metaItem}>
-                  <span className={styles.metaLabel}>Mass</span>
+                  <span className={styles.metaLabel}>Loadout points</span>
                   <span className={styles.metaValue}>
                     {row.plan ? `${row.plan.massUsed} / ${row.plan.massBudget}` : '—'}
                   </span>
@@ -370,9 +370,10 @@ export default function ResultsScene({
             <span className={styles.sectionLabel}>Sources</span>
             <p className={styles.creditsText}>
               Mission facts are drawn from NASA and ESA sources cited in each simulation
-              debrief. The tracker is an original implementation inspired by NASA Mission
-              Viz; no upstream code or assets were reused. T -60 seconds is a game, not
-              real engineering data. NASA does not endorse this project.
+              debrief. Reserve levels are percentages of a mission reference target;
+              loadout points and scores are game rules, not flight engineering data. The
+              tracker is an original implementation inspired by NASA Mission Viz; no
+              upstream code or assets were reused. NASA does not endorse this project.
             </p>
           </div>
         </HudPanel>

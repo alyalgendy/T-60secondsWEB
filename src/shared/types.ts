@@ -196,11 +196,11 @@ export interface Fact {
 export interface ResourceNeed {
   key: ResourceKey;
   label: string;
-  unit: string; // e.g. "units"
+  unit: string; // display unit, currently percent of the mission-specific cap
   min: number; // below this the mission fails
   ideal: number; // at/above this is safe
   max: number; // slider max
-  massPerUnit: number; // game mass cost per unit
+  massPerUnit: number; // game loadout cost per percentage point
   why: string; // one-line "why it matters"
 }
 
@@ -208,7 +208,7 @@ export interface CraftOption {
   id: string;
   name: string;
   description: string;
-  massCapacity: number; // game units
+  massCapacity: number; // game loadout points
   crewCapacity: number;
   pros: string[];
   cons: string[];
@@ -221,7 +221,7 @@ export interface MissionConfig {
   destination: string;
   goal: string; // one sentence
   durationDays: number;
-  massBudget: number; // used if a mission has no craft step
+  massBudget: number; // game loadout points; used if a mission has no craft step
   needs: ResourceNeed[]; // one per ResourceKey used in this mission
   crafts: CraftOption[]; // length 1 = auto-selected, hide chooser
   facts: Fact[]; // 2-3 items
@@ -249,7 +249,7 @@ export interface DecisionOption {
   id: string;
   label: string;
   reasoning: string; // shown before choosing: pros/cons hint
-  effects: Partial<Record<ResourceKey, number>>; // negative = lose units
+  effects: Partial<Record<ResourceKey, number>>; // percentage points; negative = lose reserve coverage
   scoreDelta: number; // -20..+20
   outcome: string; // shown after choosing
 }

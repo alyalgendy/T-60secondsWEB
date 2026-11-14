@@ -3,14 +3,8 @@ import type { MissionConfig } from '../../shared/types';
 /**
  * Mission 1: International Space Station (ISS).
  *
- * Units: every amount, mass and budget below is a *game unit* chosen for balance,
- * not a real kilogram figure. Real values are only quoted inside `facts`, where a
- * NASA source is attached.
- *
- * TODO(verify): resource bands, mass costs and the 260-unit budget are game-balance
- * values written by M2. They are deliberately forgiving because this is the first
- * mission that teaches the planning mechanics. Confirm them with the team before
- * the balance pass. TODO(verify): 90-day stay is a game value as well.
+ * Resource sliders are percentages of the mission-specific reserve cap. Loadout costs
+ * remain game-balance points; real ISS measurements are shown with NASA citations.
  */
 export const missionConfig: MissionConfig = {
   id: 'iss',
@@ -26,7 +20,7 @@ export const missionConfig: MissionConfig = {
     {
       key: 'oxygen',
       label: 'Oxygen',
-      unit: 'units',
+      unit: '%',
       min: 40,
       ideal: 70,
       max: 100,
@@ -36,7 +30,7 @@ export const missionConfig: MissionConfig = {
     {
       key: 'water',
       label: 'Water',
-      unit: 'units',
+      unit: '%',
       min: 40,
       ideal: 70,
       max: 100,
@@ -46,17 +40,17 @@ export const missionConfig: MissionConfig = {
     {
       key: 'food',
       label: 'Food',
-      unit: 'units',
+      unit: '%',
       min: 40,
       ideal: 75,
       max: 100,
       massPerUnit: 1.4,
-      why: 'Meals for the crew. Food is not recycled on the station today, so every unit is launched from Earth.',
+      why: 'Meals for the crew. Food is not recycled on the station today, so the food supply must be delivered from Earth.',
     },
     {
       key: 'power',
       label: 'Power reserve',
-      unit: 'units',
+      unit: '%',
       min: 45,
       ideal: 70,
       max: 100,
