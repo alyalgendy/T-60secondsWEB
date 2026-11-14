@@ -135,7 +135,7 @@ export default function MoonScene({
   return (
     <HudFrame
       missionLabel="Moon"
-      stepLabel="Planning · Artemis Surface Sortie"
+      stepLabel="Mission planning · Artemis Surface Sortie"
       roomCode={roomCode || "DEV"}
       players={players}
       readyIds={readyIds}

@@ -168,7 +168,7 @@ export default function CutsceneScene({
   return (
     <HudShell
       missionTitle={mission}
-      stepLabel="Cutscene"
+      stepLabel="Transmission"
       roomCode={roomCode}
       players={players}
       me={me}

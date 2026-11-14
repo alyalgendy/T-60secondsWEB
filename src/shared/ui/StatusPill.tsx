@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import clsx from 'clsx';
 import styles from './StatusPill.module.css';
 
-export type StatusTone = 'ok' | 'warn' | 'danger' | 'info';
+export type StatusTone = 'ok' | 'warn' | 'danger' | 'info' | 'neutral';
 
 export interface StatusPillProps {
   tone?: StatusTone;
@@ -16,6 +16,7 @@ const DEFAULT_ICON: Record<StatusTone, string> = {
   warn: '!',
   danger: '×',
   info: 'i',
+  neutral: '·',
 };
 
 export function StatusPill({
@@ -24,8 +25,9 @@ export function StatusPill({
   icon,
   className,
 }: StatusPillProps) {
+  const styleTone = tone === 'neutral' ? 'info' : tone;
   return (
-    <span className={clsx(styles.pill, styles[tone], className)}>
+    <span className={clsx(styles.pill, styles[styleTone], className)}>
       <span className={styles.icon} aria-hidden="true">
         {icon ?? DEFAULT_ICON[tone]}
       </span>

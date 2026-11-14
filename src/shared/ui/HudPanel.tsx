@@ -6,6 +6,8 @@ export interface HudPanelProps {
   title?: string;
   subtitle?: string;
   actions?: ReactNode;
+  /** Alias used by some scenes for header actions. */
+  aside?: ReactNode;
   children: ReactNode;
   className?: string;
   bodyClassName?: string;
@@ -16,11 +18,13 @@ export function HudPanel({
   title,
   subtitle,
   actions,
+  aside,
   children,
   className,
   bodyClassName,
   scroll = false,
 }: HudPanelProps) {
+  const headerActions = actions ?? aside;
   return (
     <section className={clsx(styles.panel, className)}>
       <span className={clsx(styles.corner, styles.tl)} aria-hidden="true" />
@@ -28,13 +32,13 @@ export function HudPanel({
       <span className={clsx(styles.corner, styles.bl)} aria-hidden="true" />
       <span className={clsx(styles.corner, styles.br)} aria-hidden="true" />
 
-      {title || actions ? (
+      {title || headerActions ? (
         <header className={styles.header}>
           <div className={styles.titles}>
             {title ? <h2 className={styles.title}>{title}</h2> : null}
             {subtitle ? <p className={styles.subtitle}>{subtitle}</p> : null}
           </div>
-          {actions ? <div className={styles.actions}>{actions}</div> : null}
+          {headerActions ? <div className={styles.actions}>{headerActions}</div> : null}
         </header>
       ) : null}
 

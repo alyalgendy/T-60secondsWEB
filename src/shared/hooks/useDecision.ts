@@ -55,7 +55,6 @@ export function useDecision({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const planPath = `rooms/${roomCode}/plans/${missionId}`;
   const decisionPath = `rooms/${roomCode}/decision/${missionId}`;
 
   useEffect(() => {

@@ -92,6 +92,14 @@
   letter-spacing: 0.08em;
 }
 
+.hint {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 1.3;
+  color: var(--text-dim);
+}
+
 .compact .track {
   height: 6px;
 }

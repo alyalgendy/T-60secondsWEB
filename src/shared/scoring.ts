@@ -10,6 +10,12 @@ import type {
 /** Stable UI order for resource rows across planning / decision screens. */
 export const RESOURCE_ORDER: readonly ResourceKey[] = RESOURCE_KEYS;
 
+/** Short display for game-unit amounts in planning UI. */
+export function formatUnits(value: number): string {
+  if (!Number.isFinite(value)) return '0';
+  return Number.isInteger(value) ? String(value) : value.toFixed(1);
+}
+
 /**
  * The mass budget for a plan. When a craft is selected, its capacity is the
  * budget. Missions with no craft step fall back to MissionConfig.massBudget.

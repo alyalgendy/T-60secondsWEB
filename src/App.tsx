@@ -378,7 +378,7 @@ function FlowRouter({ roomCode, me, players, step, setStep }: FlowRouterProps) {
           players={players}
           reason={
             !Scene
-              ? 'Waiting for the Decision phase scene (M4).'
+              ? 'Waiting for the mission simulation scene.'
               : `Waiting for src/content/problems.${mission}.ts.`
           }
           onSkip={() => void setStep(getNextStep(step))}
@@ -534,7 +534,7 @@ function DecisionContainer({
   if (decision.loading || !decision.plan || !decision.state) {
     return (
       <LoadingScene
-        label="Loading mission decisions…"
+        label="Loading mission simulation…"
         roomCode={roomCode}
         me={me}
         players={players}

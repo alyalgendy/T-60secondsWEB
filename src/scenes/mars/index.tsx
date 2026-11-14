@@ -145,7 +145,7 @@ export default function MarsScene({
   return (
     <HudShell
       missionTitle="Mission 3 · Mars"
-      stepLabel="Plan mission"
+      stepLabel="Mission planning"
       roomCode={roomCode}
       players={players}
       me={me}
@@ -273,7 +273,7 @@ export default function MarsScene({
                 need={need}
                 value={draft.resources[need.key]}
                 disabled={controlsDisabled}
-                lastEditor={editedKey === need.key ? lastEditor : null}
+                editor={editedKey === need.key ? lastEditor : null}
                 onChange={(value) => {
                   void handleResourceChange(need.key, value);
                 }}

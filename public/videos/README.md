@@ -12,4 +12,5 @@ Expected file names (referenced by `src/shared/flow.ts`):
 - `moontomars.mp4`
 - `mars.mp4`
 
-The app serves this folder at `/videos/<name>.mp4`.
+The app serves this folder at `{base}videos/<name>.mp4`
+(for GitHub Pages that is `/T-60secondsWEB/videos/<name>.mp4`).

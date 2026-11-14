@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { MoonDemo } from "./MoonDemo";
 
 export const metadata: Metadata = {
-  title: "Moon planning — T-60",
+  title: "Moon planning — T -60 seconds",
   description: "Dev preview of the Moon mission planning scene.",
 };
 

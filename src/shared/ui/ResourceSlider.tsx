@@ -27,6 +27,7 @@ const TONE_COLOR: Record<StatusTone, string> = {
   warn: 'var(--warn)',
   danger: 'var(--danger)',
   info: 'var(--accent)',
+  neutral: 'var(--text-dim)',
 };
 
 export function ResourceSlider({

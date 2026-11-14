@@ -1,5 +1,8 @@
 import type { MissionId, ResourceKey } from './types';
 
+/** Player-facing game title. Keep in sync with <title> in index.html. */
+export const GAME_NAME = 'T -60 seconds';
+
 /**
  * Player colors, indexed by joinOrder. Keep in sync with the comment in tokens.css.
  * These are also the identity colors used by PlayerBadge and turn highlights.

@@ -336,7 +336,7 @@ export default function DevHarness({
           {...base}
           reason={
             !Scene
-              ? 'Waiting for the Decision phase scene (M4).'
+              ? 'Waiting for the mission simulation scene.'
               : `Waiting for a mock plan / src/content/problems.${mission}.ts.`
           }
           onSkip={() => void continueStep()}

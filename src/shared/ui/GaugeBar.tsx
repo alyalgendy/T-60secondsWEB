@@ -13,6 +13,10 @@ export interface GaugeBarProps {
   unit?: string;
   tone?: GaugeTone;
   compact?: boolean;
+  /** Whether max is a ceiling or a floor. Affects the spoken value only. */
+  limit?: 'atMost' | 'atLeast';
+  /** Optional explanatory line shown under the bar. */
+  hint?: string;
   className?: string;
 }
 
@@ -45,6 +49,8 @@ export function GaugeBar({
   unit = 'units',
   tone,
   compact = false,
+  limit,
+  hint,
   className,
 }: GaugeBarProps) {
   const safeMax = Math.max(1, max);
@@ -53,6 +59,12 @@ export function GaugeBar({
   const stateLabel = toneLabel(value, min, ideal);
   const minPercent = min !== undefined ? (min / safeMax) * 100 : null;
   const idealPercent = ideal !== undefined ? (ideal / safeMax) * 100 : null;
+  const limitText =
+    limit === 'atMost'
+      ? `at most ${max}`
+      : limit === 'atLeast'
+        ? `at least ${max}`
+        : `${max}`;
 
   return (
     <div
@@ -63,7 +75,7 @@ export function GaugeBar({
         className,
       )}
       role="progressbar"
-      aria-label={`${label}: ${value} of ${max} ${unit}, ${stateLabel}`}
+      aria-label={`${label}: ${value} of ${limitText} ${unit}, ${stateLabel}`}
       aria-valuemin={0}
       aria-valuemax={max}
       aria-valuenow={value}
@@ -104,6 +116,8 @@ export function GaugeBar({
           {ideal !== undefined ? <span>ideal {ideal}</span> : null}
         </div>
       ) : null}
+
+      {hint ? <p className={styles.hint}>{hint}</p> : null}
     </div>
   );
 }

@@ -20,20 +20,20 @@ export const FLOW_STEPS: readonly FlowStep[] = [
 
 export const STEP_LABELS: Record<FlowStep, string> = {
   lobby: 'Lobby',
-  'cutscene-intro': 'Briefing',
-  'cutscene-intro-to-iss': 'Transit · Intro to ISS',
-  'cutscene-iss': 'Cutscene · ISS',
-  'plan-iss': 'Plan · ISS',
-  'decision-iss': 'Decision · ISS',
-  'cutscene-iss-to-moon': 'Transit · ISS to Moon',
-  'cutscene-moon': 'Cutscene · Moon',
-  'plan-moon': 'Plan · Moon',
-  'decision-moon': 'Decision · Moon',
-  'cutscene-moon-to-mars': 'Transit · Moon to Mars',
-  'cutscene-mars': 'Cutscene · Mars',
-  'plan-mars': 'Plan · Mars',
-  'decision-mars': 'Decision · Mars',
-  results: 'Results',
+  'cutscene-intro': 'Mission briefing',
+  'cutscene-intro-to-iss': 'Transit to ISS',
+  'cutscene-iss': 'Arriving at ISS',
+  'plan-iss': 'Mission planning · ISS',
+  'decision-iss': 'Mission simulation · ISS',
+  'cutscene-iss-to-moon': 'Transit to the Moon',
+  'cutscene-moon': 'Arriving at the Moon',
+  'plan-moon': 'Mission planning · Moon',
+  'decision-moon': 'Mission simulation · Moon',
+  'cutscene-moon-to-mars': 'Transit to Mars',
+  'cutscene-mars': 'Arriving at Mars',
+  'plan-mars': 'Mission planning · Mars',
+  'decision-mars': 'Mission simulation · Mars',
+  results: 'Mission results',
 };
 
 export const CUTSCENE_TITLES: Partial<Record<FlowStep, string>> = {
@@ -46,14 +46,20 @@ export const CUTSCENE_TITLES: Partial<Record<FlowStep, string>> = {
   'cutscene-mars': 'Mission 3 · Mars',
 };
 
+/** Prefix with Vite's base so GitHub Pages (…/T-60secondsWEB/) finds the files. */
+function videoUrl(file: string): string {
+  const base = import.meta.env.BASE_URL;
+  return `${base.endsWith('/') ? base : `${base}/`}videos/${file}`;
+}
+
 export const CUTSCENE_VIDEOS: Partial<Record<FlowStep, string>> = {
-  'cutscene-intro': '/videos/intro.mp4',
-  'cutscene-intro-to-iss': '/videos/introtoiss.mp4',
-  'cutscene-iss': '/videos/iss.mp4',
-  'cutscene-iss-to-moon': '/videos/isstomoon.mp4',
-  'cutscene-moon': '/videos/moon.mp4',
-  'cutscene-moon-to-mars': '/videos/moontomars.mp4',
-  'cutscene-mars': '/videos/mars.mp4',
+  'cutscene-intro': videoUrl('intro.mp4'),
+  'cutscene-intro-to-iss': videoUrl('introtoiss.mp4'),
+  'cutscene-iss': videoUrl('iss.mp4'),
+  'cutscene-iss-to-moon': videoUrl('isstomoon.mp4'),
+  'cutscene-moon': videoUrl('moon.mp4'),
+  'cutscene-moon-to-mars': videoUrl('moontomars.mp4'),
+  'cutscene-mars': videoUrl('mars.mp4'),
 };
 
 const NEXT_STEP: Record<FlowStep, FlowStep> = {

@@ -135,7 +135,7 @@ export default function DecisionScene({
   const meIsTurn = state.status === 'choosing' && me.id === state.turnPlayerId;
   const isLastProblem = state.index >= incidentCount - 1;
   const score = scoreState(state.scoreAfter);
-  const stepLabel = state.status === 'debrief' ? 'Debrief' : 'Decision phase';
+  const stepLabel = state.status === 'debrief' ? 'Debrief' : 'Mission simulation';
   const missionTitle = `Mission ${mission.number} · ${mission.label}`;
 
   useEffect(() => {
@@ -198,7 +198,7 @@ export default function DecisionScene({
         players={players}
         me={me}
       >
-        <HudPanel title="Decision phase">
+        <HudPanel title="Mission simulation">
           <p>No incident data is loaded for this mission. Ask the host to restart the run.</p>
         </HudPanel>
       </HudShell>
@@ -344,7 +344,7 @@ export default function DecisionScene({
         </HudPanel>
 
         <HudPanel
-          title={state.status === 'debrief' ? 'Mission Debrief' : 'Decision'}
+          title={state.status === 'debrief' ? 'Mission Debrief' : 'Simulation'}
           subtitle={
             state.status === 'debrief'
               ? 'Every choice, and what it cost'
@@ -364,7 +364,7 @@ export default function DecisionScene({
                 ref={debriefRef}
                 tabIndex={-1}
               >
-                {mission.label} decisions complete
+                {mission.label} simulation complete
               </h1>
               <p className={styles.debriefMeta}>
                 Plan {plan.score}/100 · {incidentCount} incidents triggered
@@ -531,7 +531,7 @@ export default function DecisionScene({
 
                   {currentPick ? (
                     <p className={styles.decidedBy}>
-                      Decision by{' '}
+                      Choice by{' '}
                       <PlayerBadge
                         player={
                           players.find((player) => player.id === currentPick.playerId) ??
@@ -750,7 +750,7 @@ export default function DecisionScene({
           </div>
 
           <div className={styles.log}>
-            <span className={styles.sectionLabel}>Decision log</span>
+            <span className={styles.sectionLabel}>Simulation log</span>
             {state.problemIds.slice(0, state.index + 1).map((id, index) => {
               const definition = findIncident(missionId, id);
               const pick = state.picks.find((item) => item.problemId === id);
@@ -783,7 +783,7 @@ export default function DecisionScene({
           </div>
 
           <div className={styles.rulesBox}>
-            <span className={styles.sectionLabel}>Decision rule</span>
+            <span className={styles.sectionLabel}>Simulation rules</span>
             <p>
               Time advances between events. Thin planning margins make the
               mission harder, and everyone shares the result.

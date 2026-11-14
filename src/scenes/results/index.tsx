@@ -160,7 +160,7 @@ export default function ResultsScene({
       <div className={styles.grid}>
         <HudPanel
           title="Final Assessment"
-          subtitle="Planning plus decisions, all three missions"
+          subtitle="Planning and simulations, all three missions"
           className={styles.hero}
           scroll
         >
@@ -233,7 +233,7 @@ export default function ResultsScene({
 
             <p className={styles.accuracyNote}>
               Scores are game points, not a real engineering assessment. Real mission
-              facts and sources appear in the decision debriefs.
+              facts and sources appear in the simulation debriefs.
             </p>
           </div>
         </HudPanel>
@@ -259,7 +259,7 @@ export default function ResultsScene({
                 <span className={styles.missionScoreMax}>/100</span>
                 {decisionScores?.[row.id] !== undefined ? (
                   <span className={styles.scoreSplit}>
-                   plan {row.plan?.score ?? 0} · decisions {decisionScores[row.id]}
+                   plan {row.plan?.score ?? 0} · simulation {decisionScores[row.id]}
                   </span>
                 ) : null}
               </div>
@@ -356,8 +356,8 @@ export default function ResultsScene({
           <div className={styles.credits}>
             <span className={styles.sectionLabel}>Sources</span>
             <p className={styles.creditsText}>
-              Mission facts are drawn from NASA and ESA sources cited in each decision
-              debrief. T-60 Seconds is a game; game units and scores are not real
+              Mission facts are drawn from NASA and ESA sources cited in each simulation
+              debrief. T -60 seconds is a game; game units and scores are not real
               engineering data.
             </p>
           </div>

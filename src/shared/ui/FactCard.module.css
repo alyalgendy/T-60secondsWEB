@@ -4,6 +4,16 @@
   background: linear-gradient(90deg, rgba(79, 209, 255, 0.07), transparent 70%);
 }
 
+.index {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+
 .text {
   margin: 0 0 5px;
   font-family: var(--font-body);

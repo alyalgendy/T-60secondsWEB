@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import clsx from 'clsx';
+import { GAME_NAME } from '../constants';
 import type { Player } from '../types';
 import { PlayerBadge } from './PlayerBadge';
 import styles from './HudShell.module.css';
@@ -7,10 +8,13 @@ import styles from './HudShell.module.css';
 export interface HudShellProps {
   children: ReactNode;
   missionName?: string;
+  /** Alias used by some mission scenes. */
+  missionTitle?: string;
   stepLabel?: string;
   roomCode?: string;
   players?: Player[];
   me?: Player | null;
+  headerAside?: ReactNode;
   className?: string;
 }
 
@@ -20,14 +24,17 @@ export interface HudShellProps {
  */
 export function HudShell({
   children,
-  missionName = 'Mission Control',
+  missionName,
+  missionTitle,
   stepLabel,
   roomCode,
   players = [],
   me,
+  headerAside,
   className,
 }: HudShellProps) {
   const [copied, setCopied] = useState(false);
+  const resolvedName = missionName ?? missionTitle ?? 'Mission Control';
 
   const copyCode = () => {
     if (!roomCode) return;
@@ -43,14 +50,15 @@ export function HudShell({
   return (
     <div className={clsx(styles.shell, className)}>
       <header className={styles.topbar}>
-        <div className={styles.brand}>
-          <span className={styles.mark}>T-60</span>
-          <span className={styles.brandText}>NASA Space Apps</span>
+        <div className={styles.brand} aria-label={GAME_NAME}>
+          <span className={styles.mark}>T -60</span>
+          <span className={styles.brandText}>seconds</span>
         </div>
 
         <div className={styles.mission}>
-          <span className={styles.missionName}>{missionName}</span>
+          <span className={styles.missionName}>{resolvedName}</span>
           {stepLabel ? <span className={styles.step}>{stepLabel}</span> : null}
+          {headerAside}
         </div>
 
         <div className={styles.meta}>

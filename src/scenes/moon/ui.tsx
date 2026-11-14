@@ -46,7 +46,7 @@ export function HudFrame({
         <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between gap-4 px-4 py-2.5">
           <div className="flex min-w-0 items-center gap-3">
             <span className="grid size-9 shrink-0 place-items-center rounded-lg border border-crew/40 bg-crew/10 font-mono text-xs font-bold text-crew">
-              T60
+              T -60
             </span>
             <div className="min-w-0">
               <p className="truncate font-mono text-[9px] uppercase tracking-[0.3em] text-slate-500">

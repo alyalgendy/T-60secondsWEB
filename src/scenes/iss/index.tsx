@@ -107,8 +107,8 @@ export default function IssScene({
 
   return (
     <HudShell
-      missionTitle={missionConfig.title}
-      stepLabel="Plan · ISS"
+      missionName={missionConfig.title}
+      stepLabel="Mission planning"
       roomCode={roomCode}
       players={players}
       me={me}
